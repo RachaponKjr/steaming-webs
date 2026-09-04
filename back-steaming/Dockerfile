@@ -12,13 +12,10 @@ RUN corepack enable
 FROM base AS dependencies
 WORKDIR /app
 
-# ปิดการบล็อก build scripts ของ pnpm รุ่นใหม่
-ENV PNPM_DISABLE_BUILDS_CHECK=true
-
 # คัดลอกไฟล์ package และ pnpm-lock สำหรับติดตั้ง dependencies
 COPY package.json pnpm-lock.yaml ./
 
-# ติดตั้ง dependencies ทั้งหมดโดยอนุญาต build-scripts และสิทธิ์การรันแบบครบถ้วน
+# ติดตั้ง dependencies ทั้งหมด (onlyBuiltDependencies ใน package.json จะอนุญาต build scripts ที่จำเป็นให้เอง)
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --unsafe-perm=true
 
 # ==========================================
@@ -26,8 +23,6 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 # ==========================================
 FROM base AS build
 WORKDIR /app
-
-ENV PNPM_DISABLE_BUILDS_CHECK=true
 
 # ดึง node_modules จากขั้นตอน dependencies มาใช้
 COPY --from=dependencies /app/node_modules ./node_modules
