@@ -12,17 +12,22 @@ RUN corepack enable
 FROM base AS dependencies
 WORKDIR /app
 
+# ปิดการบล็อก build scripts ของ pnpm รุ่นใหม่
+ENV PNPM_DISABLE_BUILDS_CHECK=true
+
 # คัดลอกไฟล์ package และ pnpm-lock สำหรับติดตั้ง dependencies
 COPY package.json pnpm-lock.yaml ./
 
-# ติดตั้ง dependencies ทั้งหมด (รวมถึง devDependencies สำหรับใช้ build และอนุญาต build-scripts เช่น prisma/bcrypt)
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --config.ignore-build-scripts=false
+# ติดตั้ง dependencies ทั้งหมดโดยอนุญาต build-scripts และสิทธิ์การรันแบบครบถ้วน
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --unsafe-perm=true
 
 # ==========================================
 # 3. Build Stage (Compile NestJS TypeScript)
 # ==========================================
 FROM base AS build
 WORKDIR /app
+
+ENV PNPM_DISABLE_BUILDS_CHECK=true
 
 # ดึง node_modules จากขั้นตอน dependencies มาใช้
 COPY --from=dependencies /app/node_modules ./node_modules
@@ -32,7 +37,7 @@ COPY . .
 RUN pnpm run build
 
 # เคลียร์ devDependencies ออก ให้เหลือเฉพาะ Production Dependencies สำหรับรันจริง
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile --config.ignore-build-scripts=false
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile --unsafe-perm=true
 
 # ==========================================
 # 4. Production Runner Stage (Image ตัวจริงที่นำไปรัน)
