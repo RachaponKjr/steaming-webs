@@ -2,20 +2,21 @@
 FROM node:20-alpine AS base
 WORKDIR /app
 RUN apk add --no-cache openssl libc6-compat
+RUN npm install -g pnpm@9
 
 # ---------- Build ----------
 FROM base AS build
-COPY package.json package-lock.json ./
-RUN npm ci
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install --frozen-lockfile
 COPY . .
 RUN npx prisma generate
-RUN npm run build
+RUN pnpm run build
 
 # ---------- Production dependencies only ----------
 FROM base AS prod-deps
-COPY package.json package-lock.json ./
+COPY package.json pnpm-lock.yaml ./
 COPY prisma ./prisma
-RUN npm ci --omit=dev
+RUN pnpm install --frozen-lockfile --prod
 RUN npx prisma generate
 
 # ---------- Runner ----------
