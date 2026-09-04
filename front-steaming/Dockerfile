@@ -1,18 +1,24 @@
-# 1. ติดตั้ง Dependencies
-FROM node:18-alpine AS deps
+# ==========================================
+# 1. Install Dependencies Stage
+# ==========================================
+FROM node:22-alpine AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
 RUN npm install -g pnpm@9 && pnpm install --frozen-lockfile
 
-# 2. Build โค้ด Next.js (เปลี่ยนมาใช้ npm run build เพื่อเลี่ยงปัญหา workspace ของ pnpm)
-FROM node:18-alpine AS builder
+# ==========================================
+# 2. Build Stage (Next.js)
+# ==========================================
+FROM node:22-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 RUN npm run build
 
-# 3. รันโปรเจคในโหมด Production (Standalone)
-FROM node:18-alpine AS runner
+# ==========================================
+# 3. Production Runner Stage (Standalone)
+# ==========================================
+FROM node:22-alpine AS runner
 WORKDIR /app
 
 ENV NODE_ENV production
