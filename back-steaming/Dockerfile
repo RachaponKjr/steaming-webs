@@ -12,10 +12,10 @@ RUN corepack enable
 FROM base AS dependencies
 WORKDIR /app
 
-# คัดลอกไฟล์ lockfile เพื่อใช้แคชของ Docker
+# คัดลอกไฟล์ package และ pnpm-lock สำหรับติดตั้ง dependencies
 COPY package.json pnpm-lock.yaml ./
 
-# อนุญาตให้รัน build scripts ของ Prisma, bcrypt ฯลฯ ได้ด้วย --config.ignore-build-scripts=false
+# ติดตั้ง dependencies ทั้งหมด (รวมถึง devDependencies สำหรับใช้ build และอนุญาต build-scripts เช่น prisma/bcrypt)
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --config.ignore-build-scripts=false
 
 # ==========================================
@@ -24,13 +24,14 @@ RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
 FROM base AS build
 WORKDIR /app
 
+# ดึง node_modules จากขั้นตอน dependencies มาใช้
 COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
 
-# สั่ง Build โค้ด NestJS จาก src/ ไปเป็น dist/
+# สั่ง Build โค้ด TypeScript ของ NestJS ไปเป็น JavaScript ในโฟลเดอร์ dist/
 RUN pnpm run build
 
-# เคลียร์ devDependencies ให้เหลือเฉพาะ Production Dependencies (อนุญาต build scripts เช่นกันป้องกันตอนติดตั้ง production)
+# เคลียร์ devDependencies ออก ให้เหลือเฉพาะ Production Dependencies สำหรับรันจริง
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile --config.ignore-build-scripts=false
 
 # ==========================================
@@ -42,10 +43,10 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV PORT=3000
 
-# รันด้วย non-root user (node) เพื่อความปลอดภัย
+# รันด้วย non-root user (node) เพื่อความปลอดภัยสูงสุดตามมาตรฐาน Production
 USER node
 
-# ดึงเฉพาะ dist, node_modules และ package.json
+# คัดลอกเฉพาะไฟล์ที่จำเป็นต้องใช้ตอนรันระบบจาก stage build
 COPY --chown=node:node --from=build /app/node_modules ./node_modules
 COPY --chown=node:node --from=build /app/dist ./dist
 COPY --chown=node:node --from=build /app/package.json ./package.json
