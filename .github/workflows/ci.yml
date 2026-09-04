@@ -1,0 +1,55 @@
+name: Deploy to VPS
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Copy files via SSH and run Docker Compose
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            # 1. สร้างโฟลเดอร์โปรเจคบน Server หากยังไม่มี
+            mkdir -p ~/steaming-project
+            cd ~/steaming-project
+
+            # (ถ้าใช้วิธี git clone บน server สามารถใช้ git pull ตรงนี้ได้ แต่ถ้าจะโยนโค้ดผ่าน SCP ให้ใช้ action แยก หรือตั้งค่า clone ไว้)
+
+      # หรือใช้วิธีส่งไฟล์โปรเจคทั้งหมดขึ้นไปบน Server ก่อนรัน Docker
+      - name: Copy project folder to VPS
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "."
+          target: "~/steaming-project"
+
+      - name: Run Docker Compose on VPS
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USERNAME }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: |
+            cd ~/steaming-project
+
+            # 2. สร้างไฟล์ .env บน Server จากค่า Secret
+            echo "${{ secrets.PRODUCTION_ENV }}" > .env
+
+            # 3. รัน Docker Compose เพื่อ Build และอัปเดตระบบแบบ Zero Downtime (หรือสั่ง restart ใหม่)
+            docker compose down
+            docker compose up -d --build
+
+            # 4. ล้าง Docker image เก่าที่ไม่ได้ใช้ เพื่อไม่ให้พื้นที่เต็ม
+            docker image prune -f
