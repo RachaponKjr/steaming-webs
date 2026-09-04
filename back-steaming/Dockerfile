@@ -14,7 +14,9 @@ WORKDIR /app
 
 # คัดลอกไฟล์ lockfile เพื่อใช้แคชของ Docker
 COPY package.json pnpm-lock.yaml ./
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile
+
+# อนุญาตให้รัน build scripts ของ Prisma, bcrypt ฯลฯ ได้ด้วย --config.ignore-build-scripts=false
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --config.ignore-build-scripts=false
 
 # ==========================================
 # 3. Build Stage (Compile NestJS TypeScript)
@@ -28,8 +30,8 @@ COPY . .
 # สั่ง Build โค้ด NestJS จาก src/ ไปเป็น dist/
 RUN pnpm run build
 
-# เคลียร์ devDependencies ให้เหลือเฉพาะ Production Dependencies
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile
+# เคลียร์ devDependencies ให้เหลือเฉพาะ Production Dependencies (อนุญาต build scripts เช่นกันป้องกันตอนติดตั้ง production)
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile --config.ignore-build-scripts=false
 
 # ==========================================
 # 4. Production Runner Stage (Image ตัวจริงที่นำไปรัน)
