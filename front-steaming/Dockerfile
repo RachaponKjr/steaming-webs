@@ -2,7 +2,6 @@
 FROM node:18-alpine AS deps
 WORKDIR /app
 COPY package.json pnpm-lock.yaml ./
-# เปลี่ยนตรงนี้: ระบุเวอร์ชัน pnpm ให้ตรงกับเครื่อง เช่น pnpm@9
 RUN npm install -g pnpm@9 && pnpm install --frozen-lockfile
 
 # 2. Build โค้ด Next.js
@@ -10,8 +9,8 @@ FROM node:18-alpine AS builder
 WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
-# และเปลี่ยนตรงนี้ด้วยเช่นกัน
-RUN npm install -g pnpm@9 && pnpm build
+# เพิ่ม --no-workspace ป้องกันปัญหาเช็ค workspace รันผ่าน Docker
+RUN npm install -g pnpm@9 && pnpm --no-workspace build
 
 # 3. รันโปรเจคในโหมด Production (Standalone)
 FROM node:18-alpine AS runner
