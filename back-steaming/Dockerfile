@@ -12,10 +12,10 @@ RUN corepack enable
 FROM base AS dependencies
 WORKDIR /app
 
-# คัดลอกไฟล์ package และ pnpm-lock สำหรับติดตั้ง dependencies
-COPY package.json pnpm-lock.yaml ./
+# คัดลอกไฟล์ package, pnpm-lock และ pnpm-workspace (ตัวหลังใช้กำหนด onlyBuiltDependencies)
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
-# ติดตั้ง dependencies ทั้งหมด (onlyBuiltDependencies ใน package.json จะอนุญาต build scripts ที่จำเป็นให้เอง)
+# ติดตั้ง dependencies ทั้งหมด (onlyBuiltDependencies ใน pnpm-workspace.yaml จะอนุญาต build scripts ที่จำเป็นให้เอง)
 RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --unsafe-perm=true
 
 # ==========================================
