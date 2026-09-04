@@ -2,20 +2,20 @@ version: "3.8"
 
 services:
   # NestJS Application
-  # app:
-  #   build:
-  #     context: ./back-staeaming
-  #     dockerfile: Dockerfile
-  #   container_name: nest-chat-app
-  #   restart: unless-stopped
-  #   ports:
-  #     - "3000:3000"
-  #   env_file:
-  #     - ./back-staeaming/.env
-  #   depends_on:
-  #     - redis
-  #   networks:
-  #     - streaming-network
+  app:
+    build:
+      context: ./back-staeaming
+      dockerfile: Dockerfile
+    container_name: nest-chat-app
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    env_file:
+      - ./back-staeaming/.env
+    depends_on:
+      - redis
+    networks:
+      - streaming-network
 
   # PostgreSQL Database
   postgres:
