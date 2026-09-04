@@ -4,7 +4,13 @@ dist
 .gitignore
 .env
 .env.*
+!.env.example
+npm-debug.log
 *.log
+.vscode
+.idea
 Dockerfile
 .dockerignore
-.DS_Store
+README.md
+coverage
+.github

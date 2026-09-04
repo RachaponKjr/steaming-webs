@@ -1,57 +1,37 @@
-# ==========================================
-# 1. Base Image (Node.js 22 + pnpm)
-# ==========================================
-FROM node:22-alpine AS base
-ENV PNPM_HOME="/pnpm"
-ENV PATH="$PNPM_HOME:$PATH"
-RUN corepack enable
-
-# ==========================================
-# 2. Dependencies Stage
-# ==========================================
-FROM base AS dependencies
+# ---------- Base ----------
+FROM node:20-alpine AS base
 WORKDIR /app
+RUN apk add --no-cache openssl libc6-compat
 
-# คัดลอกไฟล์ package, pnpm-lock และ pnpm-workspace (ตัวหลังใช้กำหนด onlyBuiltDependencies)
-COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
-
-# ติดตั้ง dependencies ทั้งหมด (onlyBuiltDependencies ใน pnpm-workspace.yaml จะอนุญาต build scripts ที่จำเป็นให้เอง)
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --frozen-lockfile --unsafe-perm=true
-
-# ==========================================
-# 3. Build Stage (Compile NestJS TypeScript)
-# ==========================================
+# ---------- Build ----------
 FROM base AS build
-WORKDIR /app
-
-# ดึง node_modules จากขั้นตอน dependencies มาใช้
-COPY --from=dependencies /app/node_modules ./node_modules
+COPY package.json package-lock.json ./
+RUN npm ci
 COPY . .
+RUN npx prisma generate
+RUN npm run build
 
-# สั่ง Build โค้ด TypeScript ของ NestJS ไปเป็น JavaScript ในโฟลเดอร์ dist/
-RUN pnpm run build
+# ---------- Production dependencies only ----------
+FROM base AS prod-deps
+COPY package.json package-lock.json ./
+COPY prisma ./prisma
+RUN npm ci --omit=dev
+RUN npx prisma generate
 
-# เคลียร์ devDependencies ออก ให้เหลือเฉพาะ Production Dependencies สำหรับรันจริง
-RUN --mount=type=cache,id=pnpm,target=/pnpm/store pnpm install --prod --frozen-lockfile --unsafe-perm=true
-
-# ==========================================
-# 4. Production Runner Stage (Image ตัวจริงที่นำไปรัน)
-# ==========================================
-FROM node:22-alpine AS runner
+# ---------- Runner ----------
+FROM base AS runner
+ENV NODE_ENV=production
 WORKDIR /app
 
-ENV NODE_ENV=production
-ENV PORT=3000
+RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001
 
-# รันด้วย non-root user (node) เพื่อความปลอดภัยสูงสุดตามมาตรฐาน Production
-USER node
+COPY --from=prod-deps /app/node_modules ./node_modules
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/prisma ./prisma
+COPY package.json ./
 
-# คัดลอกเฉพาะไฟล์ที่จำเป็นต้องใช้ตอนรันระบบจาก stage build
-COPY --chown=node:node --from=build /app/node_modules ./node_modules
-COPY --chown=node:node --from=build /app/dist ./dist
-COPY --chown=node:node --from=build /app/package.json ./package.json
+USER nestjs
 
 EXPOSE 3000
 
-# รันไฟล์ Entry point หลักของ NestJS
-CMD ["node", "dist/main.js"]
+CMD ["sh", "-c", "npx prisma migrate deploy && node dist/main"]
