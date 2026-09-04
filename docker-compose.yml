@@ -1,0 +1,87 @@
+version: "3.8"
+
+services:
+  # NestJS Application
+  # app:
+  #   build:
+  #     context: ./back-staeaming
+  #     dockerfile: Dockerfile
+  #   container_name: nest-chat-app
+  #   restart: unless-stopped
+  #   ports:
+  #     - "3000:3000"
+  #   env_file:
+  #     - ./back-staeaming/.env
+  #   depends_on:
+  #     - redis
+  #   networks:
+  #     - streaming-network
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: postgres-db
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: password123
+      POSTGRES_DB: streaming_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - streaming-network
+
+  # Redis Pub/Sub
+  redis:
+    image: redis:alpine
+    container_name: redis-service
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+    networks:
+      - streaming-network
+
+  # LiveKit Server (แก้ไขตรงนี้)
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: livekit-server
+    restart: unless-stopped
+    command: --config /etc/livekit.yaml --bind 0.0.0.0
+    ports:
+      - "7880:7880"
+      - "7881:7881"
+      - "7882:7882/udp"
+      - "50000-50020:50000-50020/udp"
+    volumes:
+      - ./livekit.yaml:/etc/livekit.yaml
+    networks:
+      - streaming-network
+
+  # MediaMTX (สตรีม RTMP/RTSP/WebRTC)
+  mediamtx:
+    image: bluenviron/mediamtx:latest
+    container_name: media-server
+    restart: unless-stopped
+    ports:
+      - "8554:8554"
+      - "1935:1935"
+      - "8888:8888"
+      - "8889:8889"
+      - "8889:8889/udp"
+    environment:
+      - MTX_WEBRTCADDITIONALHOSTS=127.0.0.1
+    networks:
+      - streaming-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  streaming-network:
+    driver: bridge

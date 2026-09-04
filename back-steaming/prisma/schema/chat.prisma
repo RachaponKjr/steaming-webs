@@ -1,0 +1,36 @@
+model LiveMessage {
+  id         String   @id @default(uuid())
+  liveId     String
+  senderId   String // สุ่มหรือระบุจาก Anonymous Client (เช่น guest_abc123)
+  senderName String // ชื่อที่ผู้ใช้ตั้งก่อนพิมพ์ หรือสุ่มให้ เช่น "ผู้ชม_482"
+  content    String   @db.Text
+  isBlocked  Boolean  @default(false) // เผื่อแอดมินสั่งซ่อนข้อความหยาบคาย
+  createdAt  DateTime @default(now())
+
+  liveSession LiveSession @relation(fields: [liveId], references: [id], onDelete: Cascade)
+
+  @@index([liveId])
+  @@map("live_messages")
+}
+
+enum SenderType {
+  MEMBER
+  ADMIN
+}
+
+model MessageToAdmin {
+  id         String     @id @default(uuid())
+  senderType SenderType @default(MEMBER)
+  senderId   String
+  senderName String
+  content    String     @db.Text
+  readed     Boolean    @default(false)
+  createdAt  DateTime   @default(now())
+
+  // Relation ไปยัง Order (1 ข้อความสามารถเปิดได้หลายออเดอร์ หรือ 1:1)
+  orders Order[]
+
+  @@index([senderId, readed])
+  @@index([senderId, createdAt])
+  @@map("message_to_admin")
+}

@@ -1,0 +1,34 @@
+enum LiveStatus {
+  IDLE
+  STREAMING
+  ENDED
+}
+
+model LiveSession {
+  id        String     @id @default(uuid())
+  title     String
+  streamKey String     @unique
+  status    LiveStatus @default(IDLE)
+  creatorId String?
+  creator   Admin?     @relation(fields: [creatorId], references: [id], onDelete: SetNull)
+  startedAt DateTime?
+  endedAt   DateTime?
+
+  // ใหม่: เก็บเฉพาะ "วันที่" (เที่ยงคืนตาม Asia/Bangkok) ใช้บังคับ 1 ไลฟ์ต่อ 1 วัน
+  liveDate DateTime @db.Date
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  ogTitle       String?
+  ogDescription String?
+  ogThumbnail   String?
+  ogImage       String?
+  ogTags        String[]
+
+  messages LiveMessage[]
+  orders   Order[]
+
+  @@unique([liveDate]) 
+  @@map("live_sessions")
+}

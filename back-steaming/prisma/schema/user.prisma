@@ -1,0 +1,19 @@
+enum AdminRole {
+  SUPER_ADMIN
+  ADMIN
+  MODERATOR
+}
+
+model Admin {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String // Hashed password
+  name      String
+  role      AdminRole @default(ADMIN)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  createdLives LiveSession[]
+
+  @@map("admins")
+}

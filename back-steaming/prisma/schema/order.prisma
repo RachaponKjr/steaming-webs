@@ -1,0 +1,26 @@
+model Order {
+  id     String      @id @default(cuid())
+  userId String
+  liveId String
+  live   LiveSession @relation(fields: [liveId], references: [id], onDelete: Cascade)
+
+  // ข้อมูลลูกค้าและการจัดส่ง
+  customerName String
+  phoneNumber  String
+  address      String @db.Text
+
+  // เชื่อมโยงกับ MessageToAdmin
+  messageToAdminId String?
+  messageToAdmin   MessageToAdmin? @relation(fields: [messageToAdminId], references: [id], onDelete: SetNull)
+
+  // บันทึกข้อความดิบไว้กันข้อมูลสูญหายกรณีข้อความถูกแก้ไข/ลบ
+  capturedMessage String? @db.Text
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([liveId])
+  @@index([userId])
+  @@index([messageToAdminId])
+  @@map("orders")
+}
