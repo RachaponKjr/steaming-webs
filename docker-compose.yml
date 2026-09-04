@@ -1,8 +1,8 @@
 services:
-  # NestJS Application
+  # NestJS Backend Application
   app:
     build:
-      context: ./back-staeaming
+      context: ./back-steaming
       dockerfile: Dockerfile
     container_name: nest-chat-app
     restart: unless-stopped
@@ -10,8 +10,20 @@ services:
       - "3000:3000"
     env_file:
       - ./back-staeaming/.env
-    depends_on:
-      - redis
+    networks:
+      - streaming-network
+
+  # Next.js Frontend Application
+  front:
+    build:
+      context: ./front-steaming
+      dockerfile: Dockerfile
+    container_name: next-frontend-app
+    restart: unless-stopped
+    ports:
+      - "3001:3000" # เปิดพอร์ต 3001 บน VPS (ชี้เข้าไปพอร์ต 3000 ใน container)
+    env_file:
+      - ./front-steaming/.env
     networks:
       - streaming-network
 
@@ -28,19 +40,6 @@ services:
       POSTGRES_DB: streaming_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    networks:
-      - streaming-network
-
-  # Redis Pub/Sub
-  redis:
-    image: redis:alpine
-    container_name: redis-service
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    command: redis-server --appendonly yes
     networks:
       - streaming-network
 
@@ -78,7 +77,6 @@ services:
 
 volumes:
   postgres_data:
-  redis_data:
 
 networks:
   streaming-network:
