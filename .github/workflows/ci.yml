@@ -30,19 +30,27 @@ jobs:
           script: |
             cd ~/steaming-project
 
-            # 1. สร้างไฟล์ .env สำหรับ Backend (back-staeaming)
-            mkdir -p back-staeaming
-            echo "${{ secrets.PRODUCTION_ENV }}" > back-staeaming/.env
+            mkdir -p back-steaming
+            echo "${{ secrets.PRODUCTION_ENV }}" > back-steaming/.env
 
-            # 2. สร้างไฟล์ .env สำหรับ Frontend (front-steaming)
-            # *หมายเหตุ: หากคุณใช้ Secret แยกกัน ให้เปลี่ยนชื่อ secret ด้านหลังได้ เช่น ${{ secrets.FRONTEND_ENV }} 
-            # แต่ถ้าใช้ตัวเดียวกัน สามารถปล่อยไว้แบบนี้ได้เลยครับ
             mkdir -p front-steaming
             echo "${{ secrets.PRODUCTION_ENV }}" > front-steaming/.env
 
-            # 3. รัน Docker Compose เพื่อ Build และอัปเดตระบบทั้ง Backend และ Frontend พร้อมกัน
             docker compose down
-            docker compose up -d --build
 
-            # 4. ล้าง Docker image เก่าที่ไม่ได้ใช้เพื่อประหยัดพื้นที่
+            echo "=============================="
+            echo "🔨 BUILDING BACKEND (app)..."
+            echo "=============================="
+            docker compose build app --progress=plain
+
+            echo "=============================="
+            echo "🔨 BUILDING FRONTEND (front)..."
+            echo "=============================="
+            docker compose build front --progress=plain
+
+            echo "=============================="
+            echo "🚀 STARTING ALL SERVICES..."
+            echo "=============================="
+            docker compose up -d
+
             docker image prune -f
