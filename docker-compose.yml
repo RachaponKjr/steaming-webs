@@ -1,5 +1,4 @@
 services:
-  # NestJS Backend Application
   app:
     build:
       context: ./back-steaming
@@ -9,11 +8,10 @@ services:
     ports:
       - "3000:3000"
     env_file:
-      - ./back-staeaming/.env
+      - ./back-steaming/.env
     networks:
       - streaming-network
 
-  # Next.js Frontend Application
   front:
     build:
       context: ./front-steaming
@@ -21,13 +19,12 @@ services:
     container_name: next-frontend-app
     restart: unless-stopped
     ports:
-      - "3001:3000" # เปิดพอร์ต 3001 บน VPS (ชี้เข้าไปพอร์ต 3000 ใน container)
+      - "3001:3000"
     env_file:
       - ./front-steaming/.env
     networks:
       - streaming-network
 
-  # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
     container_name: postgres-db
@@ -43,7 +40,6 @@ services:
     networks:
       - streaming-network
 
-  # LiveKit Server
   livekit:
     image: livekit/livekit-server:latest
     container_name: livekit-server
@@ -59,7 +55,6 @@ services:
     networks:
       - streaming-network
 
-  # MediaMTX (สตรีม RTMP/RTSP/WebRTC)
   mediamtx:
     image: bluenviron/mediamtx:latest
     container_name: media-server

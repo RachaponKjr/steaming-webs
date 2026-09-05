@@ -31,26 +31,16 @@ jobs:
             cd ~/steaming-project
 
             mkdir -p back-steaming
-            echo "${{ secrets.PRODUCTION_ENV }}" > back-steaming/.env
+            echo "${{ secrets.BACKEND_ENV }}" > back-steaming/.env
 
             mkdir -p front-steaming
-            echo "${{ secrets.PRODUCTION_ENV }}" > front-steaming/.env
+            echo "${{ secrets.FRONTEND_ENV }}" > front-steaming/.env
 
             docker compose down
 
             echo "=============================="
-            echo "🔨 BUILDING BACKEND (app)..."
+            echo "🔨 BUILDING & STARTING SERVICES..."
             echo "=============================="
-            docker compose build app --progress=plain
-
-            echo "=============================="
-            echo "🔨 BUILDING FRONTEND (front)..."
-            echo "=============================="
-            docker compose build front --progress=plain
-
-            echo "=============================="
-            echo "🚀 STARTING ALL SERVICES..."
-            echo "=============================="
-            docker compose up -d
+            docker compose up -d --build
 
             docker image prune -f
