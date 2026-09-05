@@ -107,7 +107,7 @@ export default function HomePage({ liveId }: { liveId: string }) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-
+  console.log("test");
   const [chatInput, setChatInput] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const mobileMessagesEndRef = useRef<HTMLDivElement>(null);
