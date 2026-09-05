@@ -24,7 +24,8 @@ WORKDIR /app
 
 RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001
 
-COPY --from=prod-deps /app/node_modules ./node_modules
+# เปลี่ยนจาก prod-deps มาเป็น build เพื่อให้ได้ node_modules ที่ผ่านการ generate Prisma มาแล้วครบถ้วน
+COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
 COPY package.json ./
