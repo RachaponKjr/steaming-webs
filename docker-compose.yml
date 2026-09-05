@@ -25,6 +25,10 @@ services:
     build:
       context: ./front-steaming
       dockerfile: Dockerfile
+      args:
+        - NEXT_PUBLIC_API_URL=https://api.zimonds.com
+        - NEXT_PUBLIC_BACKEND_URL=https://api.zimonds.com
+        - NEXT_PUBLIC_LIVEKIT_URL=ws://119.59.102.57:7880
     container_name: next-frontend-app
     restart: unless-stopped
     ports:
