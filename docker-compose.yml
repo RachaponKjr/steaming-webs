@@ -17,7 +17,7 @@ services:
       - SEED_ADMIN_PASSWORD=0819332626
       - LIVEKIT_API_KEY=livekit_api_key
       - LIVEKIT_API_SECRET=rh3wJ0eht6pwCWrGNkP8UUfgu3qumyKlUGbAt0bePS4=
-      - LIVEKIT_URL=ws://livekit.zimonds.com
+      - LIVEKIT_URL=http://livekit-server:7880
     networks:
       - streaming-network
 
@@ -28,7 +28,7 @@ services:
       args:
         - NEXT_PUBLIC_API_URL=https://api.zimonds.com
         - NEXT_PUBLIC_BACKEND_URL=https://api.zimonds.com
-        - NEXT_PUBLIC_LIVEKIT_URL=ws://livekit.zimonds.com
+        - NEXT_PUBLIC_LIVEKIT_URL=wss://livekit.zimonds.com
     container_name: next-frontend-app
     restart: unless-stopped
     ports:
@@ -36,7 +36,7 @@ services:
     environment:
       - NEXT_PUBLIC_API_URL=https://api.zimonds.com
       - NEXT_PUBLIC_BACKEND_URL=https://api.zimonds.com
-      - NEXT_PUBLIC_LIVEKIT_URL=ws://livekit.zimonds.com
+      - NEXT_PUBLIC_LIVEKIT_URL=wss://livekit.zimonds.com
     networks:
       - streaming-network
 
