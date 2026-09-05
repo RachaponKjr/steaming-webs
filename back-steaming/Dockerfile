@@ -34,4 +34,4 @@ USER nestjs
 EXPOSE 3000
 
 # รันแอปเฉยๆ ไม่รัน migration อัตโนมัติแล้ว
-CMD ["node", "dist/main"]
+CMD ["node", "dist/src/main"]
