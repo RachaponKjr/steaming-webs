@@ -7,8 +7,17 @@ services:
     restart: unless-stopped
     ports:
       - "3000:3000"
-    env_file:
-      - ./back-steaming/.env
+    environment:
+      - PORT=3000
+      - REDIS_HOST=redis-server
+      - REDIS_PORT=6379
+      - DATABASE_URL=postgresql://postgres:password123@postgres-db:5432/streaming_db?schema=public
+      - JWT_SECRET=your-super-secret-key-change-this
+      - SEED_ADMIN_EMAIL=info@nocturadigital.com
+      - SEED_ADMIN_PASSWORD=0819332626
+      - LIVEKIT_API_KEY=livekit_api_key
+      - LIVEKIT_API_SECRET=rh3wJ0eht6pwCWrGNkP8UUfgu3qumyKlUGbAt0bePS4=
+      - LIVEKIT_URL=ws://livekit-server:7880
     networks:
       - streaming-network
 
@@ -20,8 +29,10 @@ services:
     restart: unless-stopped
     ports:
       - "3001:3000"
-    env_file:
-      - ./front-steaming/.env
+    environment:
+      - NEXT_PUBLIC_API_URL=https://api.zimonds.com
+      - NEXT_PUBLIC_BACKEND_URL=https://api.zimonds.com
+      - NEXT_PUBLIC_LIVEKIT_URL=ws://119.59.102.57:7880
     networks:
       - streaming-network
 
