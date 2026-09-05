@@ -15,9 +15,7 @@ RUN pnpm run build
 # ---------- Production dependencies only ----------
 FROM base AS prod-deps
 COPY package.json pnpm-lock.yaml ./
-COPY prisma ./prisma
 RUN pnpm install --frozen-lockfile --prod
-RUN npx prisma generate
 
 # ---------- Runner ----------
 FROM base AS runner
@@ -29,6 +27,7 @@ RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
+COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY package.json ./
 
 USER nestjs
