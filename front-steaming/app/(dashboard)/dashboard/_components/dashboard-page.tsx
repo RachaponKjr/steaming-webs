@@ -205,9 +205,7 @@ export default function DashboardPage({ params }: DashboardProps) {
         if (isMounted) {
           setLivekitToken(data.token);
           // หาก backend ส่งค่า wsUrl เป็น http:// หรือโดเมน docker ให้แปลงเป็น ws://127.0.0.1:7880
-          const validWsUrl = data.wsUrl?.startsWith("ws")
-            ? data.wsUrl
-            : "ws://127.0.0.1:7880";
+          const validWsUrl = "wss://livekit.zimonds.com";
           setWsUrl(validWsUrl);
         }
       })
