@@ -2,7 +2,6 @@ import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { AccessToken } from 'livekit-server-sdk';
 
-// 1. ประกาศ Interface สำหรับ Type ที่แน่นอน
 export interface TokenResponse {
   token: string;
   wsUrl: string;
@@ -12,7 +11,6 @@ export interface TokenResponse {
 export class LivekitService {
   constructor(private readonly configService: ConfigService) {}
 
-  // 2. ระบุ Return Type: Promise<TokenResponse>
   async generateToken(
     room: string,
     username: string,
@@ -20,9 +18,9 @@ export class LivekitService {
   ): Promise<TokenResponse> {
     const apiKey = this.configService.get<string>('LIVEKIT_API_KEY');
     const apiSecret = this.configService.get<string>('LIVEKIT_API_SECRET');
-    const wsUrl = this.configService.get<string>('LIVEKIT_URL');
 
-    if (!apiKey || !apiSecret || !wsUrl) {
+    // ลบการเช็ค wsUrl จาก Config ออก ให้ใช้โดเมนจริงตายตัวไปเลยเพื่อความชัวร์
+    if (!apiKey || !apiSecret) {
       throw new InternalServerErrorException(
         'LiveKit server configuration is missing',
       );
@@ -31,7 +29,7 @@ export class LivekitService {
     const at = new AccessToken(apiKey, apiSecret, {
       identity: username,
       name: username,
-      ttl: '4h',
+      ttl: '8h',
     });
 
     at.addGrant({
@@ -46,7 +44,8 @@ export class LivekitService {
 
     return {
       token,
-      wsUrl,
+      // บังคับคืนค่าเป็น wss:// โดเมนภายนอกที่ผ่าน Nginx Proxy Manager เสมอ
+      wsUrl: 'wss://livekit.zimonds.com',
     };
   }
 }
