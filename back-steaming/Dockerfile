@@ -27,11 +27,12 @@ RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001
 COPY --from=prod-deps /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
+# เพิ่มบรรทัดนี้เพื่อให้ Prisma Client ถูกสร้างขึ้นมาใช้งานในโหมด Production ได้อย่างสมบูรณ์
+COPY --from=build /app/node_modules/.prisma ./node_modules/.prisma
 COPY package.json ./
 
 USER nestjs
 
 EXPOSE 3000
 
-# รันแอปเฉยๆ ไม่รัน migration อัตโนมัติแล้ว
 CMD ["node", "dist/main"]
