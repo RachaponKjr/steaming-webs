@@ -24,6 +24,8 @@ WORKDIR /app
 
 RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001
 
+RUN mkdir -p logs && chown -R nestjs:nodejs logs
+
 # เปลี่ยนจาก prod-deps มาเป็น build เพื่อให้ได้ node_modules ที่ผ่านการ generate Prisma มาแล้วครบถ้วน
 COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/dist ./dist
