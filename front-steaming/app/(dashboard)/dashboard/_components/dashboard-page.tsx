@@ -65,6 +65,7 @@ import {
   useTodayLiveSession,
   useCreateTodayLiveSession,
 } from "@/hooks/useLiveSession";
+import { useHostLivekitToken } from "@/hooks/useLivekitToken";
 import { LiveStatus } from "@/services/live-session.service";
 
 interface DashboardProps {
@@ -138,11 +139,15 @@ export default function DashboardPage({ params }: DashboardProps) {
   const [quickReply, setQuickReply] = useState("");
   const [tagInput, setTagInput] = useState("");
 
-  // LiveKit Connection State
-  const [livekitToken, setLivekitToken] = useState<string>("");
-  const [wsUrl, setWsUrl] = useState<string>("");
-  const [isTokenLoading, setIsTokenLoading] = useState(false);
-  const [tokenError, setTokenError] = useState<string>("");
+  // LiveKit Connection State (ขอ token จาก endpoint ที่ป้องกันด้วย JWT แอดมิน)
+  const {
+    token: livekitToken,
+    wsUrl,
+    isLoading: isTokenLoading,
+    error: tokenErrorObj,
+  } = useHostLivekitToken(liveId);
+  const tokenError = (tokenErrorObj as Error | null)?.message ?? "";
+  const [roomError, setRoomError] = useState<string>("");
 
   const { data: session } = useLiveSession(liveId);
   const updateSessionMutation = useUpdateLiveSession();
@@ -174,64 +179,14 @@ export default function DashboardPage({ params }: DashboardProps) {
 
   const isStreaming = session?.status === "STREAMING";
 
-  // ดึง Token จาก NestJS Backend (ดึงทันทีที่มี liveId เพื่อให้ Host เห็น Preview ตัวเอง)
-  useEffect(() => {
-    if (!liveId) return;
-
-    let isMounted = true;
-    setIsTokenLoading(true);
-    setTokenError("");
-
-    const backendUrl =
-      process.env.NEXT_PUBLIC_API_URL ||
-      process.env.NEXT_PUBLIC_BACKEND_URL ||
-      "http://localhost:3000";
-
-    fetch(
-      `${backendUrl}/livekit/token?room=${encodeURIComponent(
-        liveId,
-      )}&username=Host_Admin&role=host`,
-    )
-      .then(async (res) => {
-        if (!res.ok) {
-          const errDetail = await res.json().catch(() => ({}));
-          throw new Error(
-            errDetail.message || `HTTP ${res.status}: Failed to fetch token`,
-          );
-        }
-        return res.json();
-      })
-      .then((data) => {
-        if (isMounted) {
-          setLivekitToken(data.token);
-          // หาก backend ส่งค่า wsUrl เป็น http:// หรือโดเมน docker ให้แปลงเป็น ws://127.0.0.1:7880
-          const validWsUrl =
-            process.env.NEXT_PUBLIC_LIVEKIT_URL || "ws://119.59.102.57:7880";
-          setWsUrl(validWsUrl);
-        }
-      })
-      .catch((err) => {
-        if (isMounted) {
-          console.error("LiveKit Token Error:", err);
-          setTokenError(err.message);
-        }
-      })
-      .finally(() => {
-        if (isMounted) setIsTokenLoading(false);
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [liveId]);
-
   const { data: rawMessages = [] } = useLiveMessageStream(liveId);
   const { viewerCount, isConnected } = useLiveChat(liveId, "Host_Admin");
   const sendMessageMutation = useSendMessage();
 
   const messages = Array.isArray(rawMessages) ? rawMessages : [];
   const streamKey = session?.streamKey || "loading...";
-  const rtmpUrl = "rtmp://localhost:1935/app";
+  const rtmpUrl =
+    process.env.NEXT_PUBLIC_RTMP_URL || "rtmp://119.59.102.57:1935/app";
 
   const handleCopy = (text: string, type: "key" | "url") => {
     navigator.clipboard.writeText(text);
@@ -515,14 +470,28 @@ export default function DashboardPage({ params }: DashboardProps) {
                   video={true}
                   audio={true}
                   className="w-full h-full"
+                  onError={(err) => setRoomError(err.message)}
+                  onConnected={() => setRoomError("")}
                 >
                   <HostCameraPreview />
+                  {roomError && (
+                    <div className="absolute inset-x-0 bottom-0 bg-destructive/90 text-white text-[11px] px-3 py-2 text-center">
+                      เชื่อมต่อ LiveKit ไม่สำเร็จ: {roomError}
+                    </div>
+                  )}
                 </LiveKitRoom>
               ) : (
                 <div className="text-center text-destructive space-y-2 p-4">
                   <Radio className="size-8 mx-auto opacity-50" />
                   <p className="text-sm font-medium">
                     {tokenError || "ไม่สามารถเชื่อมต่อไปยัง Media Server ได้"}
+                  </p>
+                  <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                    ตรวจสอบว่าล็อกอินแอดมินอยู่ และ LiveKit ที่{" "}
+                    <span className="font-mono">
+                      {process.env.NEXT_PUBLIC_LIVEKIT_URL || "-"}
+                    </span>{" "}
+                    เข้าถึงได้
                   </p>
                 </div>
               )}
@@ -719,8 +688,11 @@ export default function DashboardPage({ params }: DashboardProps) {
                       </Label>
                       <Select
                         value={formData.status}
-                        onValueChange={(val: LiveStatus) =>
-                          setFormData({ ...formData, status: val })
+                        onValueChange={(val) =>
+                          setFormData({
+                            ...formData,
+                            status: (val as LiveStatus) ?? "IDLE",
+                          })
                         }
                       >
                         <SelectTrigger className="h-8 text-xs">

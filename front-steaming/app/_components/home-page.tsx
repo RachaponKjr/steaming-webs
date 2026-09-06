@@ -39,6 +39,7 @@ import {
 import { useLiveChat } from "@/hooks/useLiveChat";
 import { useLiveMessageStream, useSendMessage } from "@/hooks/useLiveMessage";
 import { useSendToAdmin, useMessagesBySender } from "@/hooks/useMessageToAdmin";
+import { useViewerLivekitToken } from "@/hooks/useLivekitToken";
 
 // LiveKit Integration
 import {
@@ -107,16 +108,13 @@ export default function HomePage({ liveId }: { liveId: string }) {
   const [isDialogOpen, setIsDialogOpen] = useState<boolean>(false);
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  console.log("test");
+  const [roomError, setRoomError] = useState<string>("");
   const [chatInput, setChatInput] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const mobileMessagesEndRef = useRef<HTMLDivElement>(null);
   const adminMessagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dmInput, setDmInput] = useState<string>("");
-
-  const [viewerToken, setViewerToken] = useState<string>("");
-  const [wsUrl, setWsUrl] = useState<string>("");
 
   const {
     data: rawMessages,
@@ -137,40 +135,11 @@ export default function HomePage({ liveId }: { liveId: string }) {
     setIsLoaded(true);
   }, []);
 
-  useEffect(() => {
-    if (!liveId || !userName) return;
-
-    let isMounted = true;
-    const backendUrl =
-      process.env.NEXT_PUBLIC_API_URL ||
-      process.env.NEXT_PUBLIC_BACKEND_URL ||
-      "http://localhost:3000";
-
-    fetch(
-      `${backendUrl}/livekit/token?room=${encodeURIComponent(
-        liveId,
-      )}&username=${encodeURIComponent(userName)}&role=viewer`,
-    )
-      .then((res) => {
-        if (!res.ok) throw new Error("Failed to fetch viewer token");
-        return res.json();
-      })
-      .then((data) => {
-        if (isMounted) {
-          setViewerToken(data.token);
-          setWsUrl(
-            data.wsUrl ||
-              process.env.NEXT_PUBLIC_LIVEKIT_URL ||
-              "ws://127.0.0.1:7880",
-          );
-        }
-      })
-      .catch((err) => console.error("Viewer LiveKit Token Error:", err));
-
-    return () => {
-      isMounted = false;
-    };
-  }, [liveId, userName]);
+  const {
+    token: viewerToken,
+    wsUrl,
+    error: tokenError,
+  } = useViewerLivekitToken(liveId, userName);
 
   const { viewerCount, isConnected, guestId } = useLiveChat(liveId, userName);
 
@@ -194,9 +163,10 @@ export default function HomePage({ liveId }: { liveId: string }) {
         if (containerRef.current?.requestFullscreen) {
           await containerRef.current.requestFullscreen();
         }
-        if (screen.orientation && "lock" in screen.orientation) {
-          await (screen.orientation as any).lock("landscape").catch(() => {});
-        }
+        const orientation = screen.orientation as ScreenOrientation & {
+          lock?: (o: string) => Promise<void>;
+        };
+        await orientation?.lock?.("landscape").catch(() => {});
         setIsFullscreen(true);
       } else {
         if (document.exitFullscreen) {
@@ -368,13 +338,27 @@ export default function HomePage({ liveId }: { liveId: string }) {
             token={viewerToken}
             serverUrl={wsUrl}
             connect={true}
+            // ผู้ชมเป็นฝ่ายรับอย่างเดียว ห้ามเปิดกล้อง/ไมค์ (token ไม่มีสิทธิ์ publish
+            // ถ้าเปิดไว้ LiveKit จะ error และขอสิทธิ์ไมค์จากผู้ชมโดยไม่จำเป็น)
             video={false}
-            audio={true}
+            audio={false}
             data-lk-theme="default"
             className="w-full h-full"
+            onError={(err) => setRoomError(err.message)}
+            onConnected={() => setRoomError("")}
           >
             <LiveStreamPlayer />
+            {roomError && (
+              <div className="absolute inset-x-0 bottom-0 z-20 bg-black/80 text-rose-300 text-[11px] px-3 py-2 text-center">
+                เชื่อมต่อสัญญาณไม่สำเร็จ กำลังลองใหม่... ({roomError})
+              </div>
+            )}
           </LiveKitRoom>
+        ) : tokenError ? (
+          <div className="text-rose-400 text-xs text-center px-6 space-y-1">
+            <p className="font-medium">ไม่สามารถขอสิทธิ์เข้าห้องไลฟ์ได้</p>
+            <p className="text-zinc-500">{(tokenError as Error).message}</p>
+          </div>
         ) : (
           <div className="text-zinc-500 text-xs flex items-center gap-2">
             <Loader2 className="size-5 animate-spin text-primary" />
@@ -385,14 +369,11 @@ export default function HomePage({ liveId }: { liveId: string }) {
         {/* Mobile Floating Action Buttons (ลอยมุมล่างขวาบนจอมือถือ) */}
         <div className="lg:hidden absolute bottom-5 right-4 z-30 flex flex-col gap-3">
           <Drawer>
-            <DrawerTrigger asChild>
-              <Button
-                size="icon"
-                className="size-12 rounded-full bg-blue-600 hover:bg-blue-500 text-white shadow-xl border border-white/20"
-                title="เปิดกล่องแชต"
-              >
-                <MessageSquare className="size-5" />
-              </Button>
+            <DrawerTrigger
+              className="size-12 inline-flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-500 text-white shadow-xl border border-white/20"
+              title="เปิดกล่องแชต"
+            >
+              <MessageSquare className="size-5" />
             </DrawerTrigger>
 
             {/* Mobile Drawer (ทั้งแชตสด และ ติดต่อแอดมิน) */}

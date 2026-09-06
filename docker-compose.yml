@@ -52,8 +52,8 @@ services:
     ports:
       - "7880:7880"
       - "7881:7881"
+      # UDP mux พอร์ตเดียว ตรงกับ rtc.udp_port ใน livekit.yaml
       - "7882:7882/udp"
-      - "50000-50020:50000-50020/udp"
     volumes:
       - ./livekit.yaml:/etc/livekit.yaml
     networks:

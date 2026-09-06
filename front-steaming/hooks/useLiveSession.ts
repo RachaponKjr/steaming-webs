@@ -10,7 +10,8 @@ import { roomService, CreateRoomDto } from "@/services/room.service";
 export const sessionKeys = {
   all: ["live-sessions"] as const,
   detail: (id: string) => [...sessionKeys.all, id] as const,
-  today: () => [...sessionKeys.all, "today"] as const,
+  today: (isCreator = true) =>
+    [...sessionKeys.all, "today", isCreator] as const,
 };
 
 export function useLiveSession(liveId: string) {
@@ -28,12 +29,18 @@ export function useLiveAll() {
   });
 }
 
-// ใหม่: ดึงไลฟ์ของวันนี้ (สำหรับ Dashboard)
-export function useTodayLiveSession() {
+/**
+ * ดึงไลฟ์ของวันนี้
+ * @param isCreator true = ฝั่งแอดมิน (backend ส่ง streamKey/RTMP มาด้วย)
+ *                  false = ฝั่งผู้ชม (ไม่ส่งข้อมูลลับ)
+ */
+export function useTodayLiveSession(isCreator = true) {
   return useQuery({
-    queryKey: sessionKeys.today(),
-    queryFn: () => roomService.getTodayRoom(true),
-    refetchInterval: 60_000, // เผื่อหน้าเปิดค้างข้ามเที่ยงคืน
+    queryKey: sessionKeys.today(isCreator),
+    queryFn: () => roomService.getTodayRoom(isCreator),
+    // ฝั่งผู้ชมต้องเด้งเข้าห้องเองทันทีที่ร้านกด GO LIVE จึงเช็คถี่กว่า
+    refetchInterval: isCreator ? 60_000 : 10_000,
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -44,7 +51,7 @@ export function useCreateTodayLiveSession() {
   return useMutation({
     mutationFn: (dto: CreateRoomDto) => roomService.createRoom(dto),
     onSuccess: (created) => {
-      queryClient.setQueryData(sessionKeys.today(), created);
+      queryClient.setQueryData(sessionKeys.today(true), created);
       queryClient.setQueryData(sessionKeys.detail(created.id), created);
     },
   });

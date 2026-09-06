@@ -97,6 +97,6 @@ export const roomService = {
   },
 
   createRoom: (dto: CreateRoomDto) => {
-    return api.post<[FullRoom, CreateRoomDto]>(`/room`, dto);
+    return api.post<FullRoom>(`/room`, dto);
   },
 };
