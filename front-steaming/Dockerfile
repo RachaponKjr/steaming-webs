@@ -20,7 +20,9 @@ ENV NEXT_PUBLIC_LIVEKIT_URL=$NEXT_PUBLIC_LIVEKIT_URL
 
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
+
 RUN npm run build
+
 
 # 3. Production Runner Stage (Standalone)
 FROM node:22-alpine AS runner
@@ -40,6 +42,11 @@ ENV NEXT_PUBLIC_LIVEKIT_URL=$NEXT_PUBLIC_LIVEKIT_URL
 
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
+
+RUN mkdir -p /app/uploads/og /app/uploads/thumbnails /app/uploads/avatars /app/uploads/general
+RUN chown -R nextjs:nodejs /app/uploads
+# หรือใช้ chmod -R 777 /app/uploads เผื่อกรณีใช้ Docker Volume ทับ
+RUN chmod -R 777 /app/uploads
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
