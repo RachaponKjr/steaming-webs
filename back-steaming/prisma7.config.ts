@@ -11,7 +11,6 @@ export default defineConfig({
     seed: 'pnpm exec ts-node prisma/seed.ts',
   },
   datasource: {
-    url: `postgresql://postgres:password123@119.59.102.57:5432/streaming_db?schema=public`,
-    // url: process.env['DATABASE_URL'],
+    url: process.env['DATABASE_URL'],
   },
 });

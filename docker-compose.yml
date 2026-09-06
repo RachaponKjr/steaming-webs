@@ -44,21 +44,6 @@ services:
     networks:
       - streaming-network
 
-  postgres:
-    image: postgres:16-alpine
-    container_name: postgres-db
-    restart: unless-stopped
-    ports:
-      - "5432:5432"
-    environment:
-      POSTGRES_USER: zimond
-      POSTGRES_PASSWORD: myzimondsDB
-      POSTGRES_DB: streaming_db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    networks:
-      - streaming-network
-
   livekit:
     image: livekit/livekit-server:latest
     container_name: livekit-server
@@ -111,9 +96,6 @@ services:
       - ./npm-letsencrypt:/etc/letsencrypt
     networks:
       - streaming-network
-
-volumes:
-  postgres_data:
 
 networks:
   streaming-network:
