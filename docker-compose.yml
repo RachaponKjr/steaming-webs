@@ -18,6 +18,8 @@ services:
       - LIVEKIT_API_KEY=livekit_api_key
       - LIVEKIT_API_SECRET=rh3wJ0eht6pwCWrGNkP8UUfgu3qumyKlUGbAt0bePS4=
       - LIVEKIT_URL=wss://livekit.zimonds.com
+    volumes:
+      - ./uploads:/app/uploads
     networks:
       - streaming-network
 
