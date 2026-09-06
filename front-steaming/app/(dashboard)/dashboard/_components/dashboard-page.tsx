@@ -205,7 +205,8 @@ export default function DashboardPage({ params }: DashboardProps) {
         if (isMounted) {
           setLivekitToken(data.token);
           // หาก backend ส่งค่า wsUrl เป็น http:// หรือโดเมน docker ให้แปลงเป็น ws://127.0.0.1:7880
-          const validWsUrl = "ws://119.59.102.57:7880";
+          const validWsUrl =
+            process.env.NEXT_PUBLIC_LIVEKIT_URL || "ws://119.59.102.57:7880";
           setWsUrl(validWsUrl);
         }
       })
@@ -509,11 +510,10 @@ export default function DashboardPage({ params }: DashboardProps) {
               ) : livekitToken && wsUrl ? (
                 <LiveKitRoom
                   token={livekitToken}
-                  serverUrl={wsUrl || "ws://127.0.0.1:7880"}
+                  serverUrl={wsUrl}
                   connect={true}
                   video={true}
                   audio={true}
-                  data-lk-theme="default"
                   className="w-full h-full"
                 >
                   <HostCameraPreview />
