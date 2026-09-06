@@ -60,6 +60,7 @@ export class UploadController {
     @Query('folder') folder: string = 'general',
     @Req() req: Request,
   ) {
+    console.log(file);
     if (!file) {
       throw new BadRequestException('กรุณาเลือกไฟล์รูปภาพ');
     }
