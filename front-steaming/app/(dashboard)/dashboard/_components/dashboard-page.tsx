@@ -145,7 +145,7 @@ export default function DashboardPage({ params }: DashboardProps) {
     wsUrl,
     isLoading: isTokenLoading,
     error: tokenErrorObj,
-  } = useHostLivekitToken(liveId);
+  } = useHostLivekitToken(liveId, true);
   const tokenError = (tokenErrorObj as Error | null)?.message ?? "";
   const [roomError, setRoomError] = useState<string>("");
 

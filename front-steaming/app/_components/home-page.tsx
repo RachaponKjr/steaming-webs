@@ -139,7 +139,7 @@ export default function HomePage({ liveId }: { liveId: string }) {
     token: viewerToken,
     wsUrl,
     error: tokenError,
-  } = useViewerLivekitToken(liveId, userName);
+  } = useViewerLivekitToken(liveId, userName, false);
 
   const { viewerCount, isConnected, guestId } = useLiveChat(liveId, userName);
 

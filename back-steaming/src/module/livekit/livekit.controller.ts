@@ -22,6 +22,7 @@ export class LivekitController {
   async getViewerToken(
     @Query('room') room: string,
     @Query('username') username?: string,
+    @Query('isHost') isHost: boolean = false,
   ): Promise<TokenResponse> {
     if (!room) {
       throw new BadRequestException('Missing "room" parameter');
@@ -33,7 +34,7 @@ export class LivekitController {
     // ป้องกัน identity ชนกันจนโดนเตะออกจากห้อง (LiveKit ยอมให้ identity ซ้ำไม่ได้)
     const uniqueIdentity = `${identity}#${Math.random().toString(36).substring(2, 7)}`;
 
-    return this.livekitService.generateToken(room, uniqueIdentity, false);
+    return this.livekitService.generateToken(room, uniqueIdentity, isHost);
   }
 
   /**

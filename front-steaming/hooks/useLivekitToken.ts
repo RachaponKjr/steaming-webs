@@ -19,10 +19,14 @@ const sharedOptions = {
   retry: 2,
 };
 
-export function useViewerLivekitToken(liveId: string, username: string) {
+export function useViewerLivekitToken(
+  liveId: string,
+  username: string,
+  isHost: boolean,
+) {
   const query = useQuery({
     queryKey: livekitKeys.viewer(liveId, username),
-    queryFn: () => livekitService.getViewerToken(liveId, username),
+    queryFn: () => livekitService.getViewerToken(liveId, username, isHost),
     enabled: Boolean(liveId) && Boolean(username?.trim()),
     ...sharedOptions,
   });
@@ -34,10 +38,10 @@ export function useViewerLivekitToken(liveId: string, username: string) {
   };
 }
 
-export function useHostLivekitToken(liveId: string) {
+export function useHostLivekitToken(liveId: string, isHost: boolean) {
   const query = useQuery({
     queryKey: livekitKeys.host(liveId),
-    queryFn: () => livekitService.getHostToken(liveId),
+    queryFn: () => livekitService.getHostToken(liveId, "ADMIN_HOST", isHost),
     enabled: Boolean(liveId),
     ...sharedOptions,
   });
