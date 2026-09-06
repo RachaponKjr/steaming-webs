@@ -341,7 +341,7 @@ export default function HomePage({ liveId }: { liveId: string }) {
             // ผู้ชมเป็นฝ่ายรับอย่างเดียว ห้ามเปิดกล้อง/ไมค์ (token ไม่มีสิทธิ์ publish
             // ถ้าเปิดไว้ LiveKit จะ error และขอสิทธิ์ไมค์จากผู้ชมโดยไม่จำเป็น)
             video={false}
-            audio={false}
+            audio={true}
             data-lk-theme="default"
             className="w-full h-full"
             onError={(err) => setRoomError(err.message)}
