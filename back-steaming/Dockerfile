@@ -24,6 +24,12 @@ WORKDIR /app
 
 RUN addgroup -g 1001 -S nodejs && adduser -S nestjs -u 1001
 
+# สร้างโฟลเดอร์ uploads ให้ user nestjs มีสิทธิ์เขียน
+RUN mkdir -p uploads/og uploads/thumbnails uploads/avatars uploads/general
+RUN chown -R nestjs:nodejs /app/uploads
+# หรือใช้ chmod -R 777 /app/uploads เผื่อกรณีใช้ Docker Volume ทับ
+RUN chmod -R 777 /app/uploads
+
 RUN mkdir -p logs && chown -R nestjs:nodejs logs
 
 # เปลี่ยนจาก prod-deps มาเป็น build เพื่อให้ได้ node_modules ที่ผ่านการ generate Prisma มาแล้วครบถ้วน

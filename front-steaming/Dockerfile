@@ -43,10 +43,6 @@ ENV NEXT_PUBLIC_LIVEKIT_URL=$NEXT_PUBLIC_LIVEKIT_URL
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
-RUN mkdir -p /app/uploads/og /app/uploads/thumbnails /app/uploads/avatars /app/uploads/general
-RUN chown -R nextjs:nodejs /app/uploads
-# หรือใช้ chmod -R 777 /app/uploads เผื่อกรณีใช้ Docker Volume ทับ
-RUN chmod -R 777 /app/uploads
 
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
