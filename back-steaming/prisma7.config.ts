@@ -11,8 +11,6 @@ export default defineConfig({
     seed: 'pnpm exec ts-node prisma/seed.ts',
   },
   datasource: {
-    url:
-      process.env.DATABASE_URL ||
-      'postgresql://zimond:myzimondsDB@postgres-db:5432/streaming_db?schema=public',
+    url: process.env['DATABASE_URL'],
   },
 });
