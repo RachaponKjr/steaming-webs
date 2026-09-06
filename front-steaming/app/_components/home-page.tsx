@@ -10,14 +10,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  Drawer,
-  DrawerContent,
-  DrawerDescription,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -34,7 +26,7 @@ import {
   CheckCircle2,
   RotateCw,
   Minimize2,
-  MessageSquare,
+  BirdIcon,
 } from "lucide-react";
 import { useLiveChat } from "@/hooks/useLiveChat";
 import { useLiveMessageStream, useSendMessage } from "@/hooks/useLiveMessage";
@@ -83,7 +75,7 @@ function LiveStreamPlayer() {
 
   if (!hostVideoTrack) {
     return (
-      <div className="flex flex-col items-center justify-center gap-2 text-zinc-400">
+      <div className="flex flex-col absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 items-center justify-center gap-2 text-zinc-400">
         <Loader2 className="size-8 animate-spin text-blue-500" />
         <p className="text-sm font-medium">รอสัญญาณถ่ายทอดสดจากทางร้าน...</p>
       </div>
@@ -94,7 +86,6 @@ function LiveStreamPlayer() {
     <div className="relative w-full h-full flex items-center justify-center bg-black overflow-hidden">
       <VideoTrack
         trackRef={hostVideoTrack}
-        // เพิ่ม -scale-x-100 เพื่อพลิกภาพกลับด้านซ้าย-ขวาให้ถูกต้อง
         className="w-full h-full object-cover lg:object-contain max-h-screen -scale-x-100"
       />
       {hostAudioTrack && <AudioTrack trackRef={hostAudioTrack} />}
@@ -111,7 +102,7 @@ export default function HomePage({ liveId }: { liveId: string }) {
   const [roomError, setRoomError] = useState<string>("");
   const [chatInput, setChatInput] = useState<string>("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const mobileMessagesEndRef = useRef<HTMLDivElement>(null);
+  const mobileChatScrollRef = useRef<HTMLDivElement>(null);
   const adminMessagesEndRef = useRef<HTMLDivElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [dmInput, setDmInput] = useState<string>("");
@@ -150,7 +141,10 @@ export default function HomePage({ liveId }: { liveId: string }) {
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    mobileMessagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    mobileChatScrollRef.current?.scrollTo({
+      top: mobileChatScrollRef.current.scrollHeight,
+      behavior: "smooth",
+    });
   }, [messages]);
 
   useEffect(() => {
@@ -250,7 +244,7 @@ export default function HomePage({ liveId }: { liveId: string }) {
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-[100dvh] overflow-hidden bg-black flex"
+      className="relative w-full h-dvh overflow-hidden bg-black flex"
     >
       {/* 1. Modal บังคับระบุชื่อ */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -288,7 +282,7 @@ export default function HomePage({ liveId }: { liveId: string }) {
         </DialogContent>
       </Dialog>
 
-      {/* 2. Main Live Video (จอใหญ่ฝั่งซ้ายบน Desktop / เต็มจอบน Mobile) */}
+      {/* 2. Main Live Video + TikTok Style Overlay (Mobile) */}
       <div className="relative flex-1 h-full bg-zinc-950 overflow-hidden flex items-center justify-center">
         {/* Header Overlay Bar */}
         <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
@@ -320,7 +314,7 @@ export default function HomePage({ liveId }: { liveId: string }) {
               size="icon"
               variant="secondary"
               onClick={toggleOrientationAndFullscreen}
-              className="size-9 rounded-full bg-black/50 hover:bg-black/70 text-white backdrop-blur-md border border-white/10"
+              className="size-12 rounded-full bg-black/50 hover:bg-black/70 text-white backdrop-blur-md border border-white/10"
               title="หมุนจอแนวนอน"
             >
               {isFullscreen ? (
@@ -332,14 +326,75 @@ export default function HomePage({ liveId }: { liveId: string }) {
           </div>
         </div>
 
+        {/* 📱 TikTok Style Floating Chat & Input on Mobile */}
+        <div className="lg:hidden absolute inset-x-0 bottom-0 z-30 flex flex-col justify-end p-3 pointer-events-none bg-gradient-to-t from-black/80 via-black/30 to-transparent pb-safe">
+          {/* กล่องข้อความแชตลอยซ้ายล่าง */}
+          <div
+            ref={mobileChatScrollRef}
+            className="w-full max-h-48 overflow-y-auto space-y-1.5 mb-2 pointer-events-auto pr-2 no-scrollbar"
+          >
+            {messages.length === 0 ? (
+              <div className="text-[11px] text-zinc-400 bg-black/40 backdrop-blur-sm px-3 py-1.5 rounded-xl w-fit">
+                ยินดีต้อนรับสู่ห้องไลฟ์สด ทักทายพูดคุยกันได้เลย 👋
+              </div>
+            ) : (
+              messages.map((item) => {
+                const isMe = item.senderName === userName;
+                const isOrderMsg = item.message?.startsWith("🛍️");
+                return (
+                  <div
+                    key={item.id}
+                    className={`flex flex-col ${isMe ? "items-end" : "items-start"}`}
+                  >
+                    <span className="text-[10px] text-zinc-300 font-medium px-1 drop-shadow">
+                      {item.senderName}
+                    </span>
+                    <div
+                      className={`px-3 py-1.5 rounded-2xl text-xs max-w-full break-words backdrop-blur-md shadow-md ${
+                        isMe
+                          ? "bg-blue-600/90 text-white rounded-tr-xs"
+                          : isOrderMsg
+                            ? "bg-amber-600/90 text-white rounded-tl-xs"
+                            : "bg-black/60 border border-white/10 text-zinc-100 rounded-tl-xs"
+                      }`}
+                    >
+                      {item.message}
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+
+          {/* แถบพิมพ์ข้อความสไตล์ TikTok ติดขอบจอล่าง */}
+          <form
+            onSubmit={handleSendMessage}
+            className="flex gap-2 pointer-events-auto items-center"
+          >
+            <Input
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              placeholder="แสดงความคิดเห็น..."
+              disabled={!isConnected}
+              className="flex-1 rounded-full h-10 text-xs bg-black/60 border-white/20 text-white placeholder:text-zinc-400 backdrop-blur-md focus-visible:ring-blue-500"
+            />
+            <Button
+              type="submit"
+              size="icon"
+              disabled={!chatInput.trim() || !isConnected}
+              className="rounded-full size-10 bg-blue-600 hover:bg-blue-500 shrink-0 shadow-lg"
+            >
+              <SendHorizontal className="size-4 text-white" />
+            </Button>
+          </form>
+        </div>
+
         {/* Video Player */}
         {viewerToken && wsUrl ? (
           <LiveKitRoom
             token={viewerToken}
             serverUrl={wsUrl}
             connect={true}
-            // ผู้ชมเป็นฝ่ายรับอย่างเดียว ห้ามเปิดกล้อง/ไมค์ (token ไม่มีสิทธิ์ publish
-            // ถ้าเปิดไว้ LiveKit จะ error และขอสิทธิ์ไมค์จากผู้ชมโดยไม่จำเป็น)
             video={false}
             audio={true}
             data-lk-theme="default"
@@ -365,176 +420,16 @@ export default function HomePage({ liveId }: { liveId: string }) {
             กำลังเชื่อมต่อห้องถ่ายทอดสด...
           </div>
         )}
-
-        {/* Mobile Floating Action Buttons (ลอยมุมล่างขวาบนจอมือถือ) */}
-        <div className="lg:hidden absolute bottom-5 right-4 z-30 flex flex-col gap-3">
-          <Drawer>
-            <DrawerTrigger
-              className="size-12 inline-flex items-center justify-center rounded-full bg-blue-600 hover:bg-blue-500 text-white shadow-xl border border-white/20"
-              title="เปิดกล่องแชต"
-            >
-              <MessageSquare className="size-5" />
-            </DrawerTrigger>
-
-            {/* Mobile Drawer (ทั้งแชตสด และ ติดต่อแอดมิน) */}
-            <DrawerContent className="max-h-[85vh] bg-zinc-950 text-zinc-100 border-zinc-800 flex flex-col z-50">
-              <DrawerHeader className="p-4 border-b border-zinc-800 text-left">
-                <DrawerTitle className="text-base font-bold flex items-center gap-2">
-                  <Radio className="size-4 text-rose-500" /> สนทนา & สั่งซื้อ
-                </DrawerTitle>
-                <DrawerDescription className="text-zinc-400 text-xs">
-                  ร่วมคุยในห้องไลฟ์สด หรือส่งข้อความสั่งซื้อ CF ตรงถึงแอดมิน
-                </DrawerDescription>
-              </DrawerHeader>
-
-              <Tabs
-                defaultValue="livechat"
-                className="flex-1 flex flex-col overflow-hidden"
-              >
-                <div className="px-4 pt-2 border-b border-zinc-800 bg-zinc-900/30">
-                  <TabsList className="grid grid-cols-2 w-full bg-zinc-900">
-                    <TabsTrigger value="livechat" className="text-xs">
-                      แชตสดในไลฟ์ ({messages.length})
-                    </TabsTrigger>
-                    <TabsTrigger value="admin" className="text-xs">
-                      สั่งซื้อ / แอดมิน
-                    </TabsTrigger>
-                  </TabsList>
-                </div>
-
-                {/* Tab 1: แชตสดบนมือถือ */}
-                <TabsContent
-                  value="livechat"
-                  className="flex-1 flex flex-col overflow-hidden m-0"
-                >
-                  <div className="flex-1 overflow-y-auto p-4 space-y-2.5">
-                    {messages.length === 0 ? (
-                      <div className="text-center text-xs text-zinc-500 py-8">
-                        ยังไม่มีข้อความ... เริ่มพิมพ์ทักทายได้เลย!
-                      </div>
-                    ) : (
-                      messages.map((item) => (
-                        <div key={item.id} className="text-xs">
-                          <span className="font-semibold text-zinc-400 mr-2">
-                            {item.senderName}:
-                          </span>
-                          <span className="text-zinc-200 break-words">
-                            {item.message}
-                          </span>
-                        </div>
-                      ))
-                    )}
-                    <div ref={mobileMessagesEndRef} />
-                  </div>
-
-                  <form
-                    onSubmit={handleSendMessage}
-                    className="p-3 border-t border-zinc-800 bg-zinc-900 flex gap-2"
-                  >
-                    <Input
-                      value={chatInput}
-                      onChange={(e) => setChatInput(e.target.value)}
-                      placeholder="พิมพ์ข้อความคุยในไลฟ์..."
-                      disabled={!isConnected}
-                      className="flex-1 rounded-xl h-10 text-xs bg-zinc-950 border-zinc-700 text-zinc-100"
-                    />
-                    <Button
-                      type="submit"
-                      size="icon"
-                      disabled={!chatInput.trim() || !isConnected}
-                      className="rounded-xl size-10 bg-blue-600 hover:bg-blue-500"
-                    >
-                      <SendHorizontal className="size-4" />
-                    </Button>
-                  </form>
-                </TabsContent>
-
-                {/* Tab 2: สั่งซื้อแอดมินบนมือถือ */}
-                <TabsContent
-                  value="admin"
-                  className="flex-1 flex flex-col overflow-hidden m-0"
-                >
-                  <div className="p-2.5 border-b border-zinc-800 bg-zinc-900/40 flex items-center gap-1.5 overflow-x-auto">
-                    <span className="text-[11px] text-zinc-400 shrink-0 font-medium">
-                      CF ด่วน:
-                    </span>
-                    {["ชุดหมูกระทะ", "กุ้งแม่น้ำ 1 กก.", "แซลมอนสด"].map(
-                      (item) => (
-                        <Button
-                          key={item}
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleQuickCf(item)}
-                          disabled={isSendingToAdmin}
-                          className="h-7 text-[11px] rounded-lg bg-zinc-900 border-zinc-700 text-zinc-200 hover:border-amber-500 shrink-0"
-                        >
-                          + CF {item}
-                        </Button>
-                      ),
-                    )}
-                  </div>
-
-                  <div className="flex-1 overflow-y-auto p-4 space-y-3">
-                    {adminHistory.length === 0 ? (
-                      <div className="text-center text-xs text-zinc-500 py-8">
-                        ยังไม่มีประวัติการส่งข้อความถึงร้านค้า
-                      </div>
-                    ) : (
-                      adminHistory.map((item) => (
-                        <div
-                          key={item.id}
-                          className="p-3 rounded-xl border border-zinc-800 bg-zinc-900 text-xs space-y-1"
-                        >
-                          <div className="flex justify-between items-center text-[10px]">
-                            <span className="font-semibold text-emerald-400">
-                              ถึงแอดมิน
-                            </span>
-                            <span className="text-zinc-500">
-                              {formatTime(item.createdAt)}
-                            </span>
-                          </div>
-                          <p className="text-zinc-200">{item.content}</p>
-                        </div>
-                      ))
-                    )}
-                  </div>
-
-                  <form
-                    onSubmit={handleSendDm}
-                    className="p-3 border-t border-zinc-800 bg-zinc-900 flex gap-2"
-                  >
-                    <Input
-                      value={dmInput}
-                      onChange={(e) => setDmInput(e.target.value)}
-                      placeholder="ระบุรหัส CF หรือสินค้าที่ต้องการสั่งซื้อ..."
-                      disabled={isSendingToAdmin}
-                      className="flex-1 rounded-xl h-10 text-xs bg-zinc-950 border-zinc-700 text-zinc-100"
-                    />
-                    <Button
-                      type="submit"
-                      size="icon"
-                      disabled={!dmInput.trim() || isSendingToAdmin}
-                      className="rounded-xl size-10 bg-emerald-600 hover:bg-emerald-500"
-                    >
-                      <SendHorizontal className="size-4" />
-                    </Button>
-                  </form>
-                </TabsContent>
-              </Tabs>
-            </DrawerContent>
-          </Drawer>
-        </div>
       </div>
 
-      {/* 3. Desktop Chat Sidebar (ฝั่งขวาถาวรบนหน้าจอคอม) */}
-      <div className="hidden lg:flex w-96 h-full flex-col bg-zinc-950 border-l border-zinc-800 text-zinc-100 shrink-0">
+      {/* 3. Desktop Chat Sidebar (ฝั่งขวาถาวรบนจอคอม) */}
+      <div className="hidden lg:flex w-md h-full flex-col bg-zinc-950 border-l border-zinc-800 text-zinc-100 shrink-0">
         <Tabs
           defaultValue="livechat"
           className="flex-1 flex flex-col overflow-hidden"
         >
-          {/* Tabs Header */}
-          <div className="p-3.5 border-b border-zinc-800 bg-zinc-900/40">
-            <TabsList className="grid grid-cols-2 w-full bg-zinc-900">
+          {/* <div className="p-3.5 border-b border-zinc-800 bg-zinc-900/40">
+            <TabsList className="grid grid-cols-2 w-full bg-zinc-900 ">
               <TabsTrigger value="livechat" className="text-xs">
                 แชตสด ({messages.length})
               </TabsTrigger>
@@ -542,9 +437,8 @@ export default function HomePage({ liveId }: { liveId: string }) {
                 สั่งซื้อ / ติดต่อแอดมิน
               </TabsTrigger>
             </TabsList>
-          </div>
+          </div> */}
 
-          {/* Tab Content 1: แชตสดในไลฟ์ */}
           <TabsContent
             value="livechat"
             className="flex-1 flex flex-col overflow-hidden m-0"
@@ -589,7 +483,6 @@ export default function HomePage({ liveId }: { liveId: string }) {
               <div ref={messagesEndRef} />
             </div>
 
-            {/* Input Bar แชตสด */}
             <form
               onSubmit={handleSendMessage}
               className="p-3.5 border-t border-zinc-800 bg-zinc-900/50 flex gap-2"
@@ -614,33 +507,10 @@ export default function HomePage({ liveId }: { liveId: string }) {
             </form>
           </TabsContent>
 
-          {/* Tab Content 2: สั่งซื้อและคุยกับแอดมิน */}
           <TabsContent
             value="admin"
             className="flex-1 flex flex-col overflow-hidden m-0"
           >
-            {/* Quick CF */}
-            <div className="p-3 border-b border-zinc-800 bg-zinc-900/40 space-y-1.5">
-              <span className="text-[11px] text-zinc-400 font-medium flex items-center gap-1">
-                <ShoppingBag className="size-3 text-amber-400" /> สั่งซื้อด่วน
-                (กด CF ทันที):
-              </span>
-              <div className="flex flex-wrap gap-1.5">
-                {["ชุดหมูกระทะ", "กุ้งแม่น้ำ 1 กก.", "แซลมอนสด"].map((item) => (
-                  <Button
-                    key={item}
-                    size="sm"
-                    variant="outline"
-                    onClick={() => handleQuickCf(item)}
-                    disabled={isSendingToAdmin}
-                    className="h-7 text-[11px] rounded-lg bg-zinc-900 border-zinc-700 text-zinc-200 hover:border-amber-500"
-                  >
-                    + CF {item}
-                  </Button>
-                ))}
-              </div>
-            </div>
-
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {isLoadingAdminHistory ? (
                 <div className="text-center text-xs text-zinc-500 py-10">
@@ -688,7 +558,6 @@ export default function HomePage({ liveId }: { liveId: string }) {
               <div ref={adminMessagesEndRef} />
             </div>
 
-            {/* Input Bar สั่งซื้อ */}
             <form
               onSubmit={handleSendDm}
               className="p-3.5 border-t border-zinc-800 bg-zinc-900/50 flex gap-2"

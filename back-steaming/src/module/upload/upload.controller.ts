@@ -73,7 +73,7 @@ export class UploadController {
       filename: file.filename,
       size: file.size,
       folder: folder,
-      url: fileUrl, // URL นำไปใส่ใน ogThumbnail หรือ ogImage ได้ทันที
+      url: fileUrl,
     };
   }
 }

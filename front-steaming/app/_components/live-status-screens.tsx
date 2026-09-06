@@ -23,7 +23,7 @@ import Link from "next/link";
 // ----------------------------------------------------------------------
 export function NoLiveTodayScreen() {
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center px-6 py-12 text-center gap-4 bg-white text-zinc-900">
+    <div className="flex min-h-screen w-full flex-col items-center justify-center px-6 py-12 text-center gap-4  text-zinc-900">
       {/* Brand Profile Logo with Inactive Ring */}
       <div className="relative flex size-28 items-center justify-center">
         <div className="relative size-24 overflow-hidden rounded-full border-2 border-zinc-200 shadow-md">
@@ -132,7 +132,7 @@ export function NoLiveTodayScreen() {
 // ----------------------------------------------------------------------
 export function WaitingLiveScreen({ title }: { title?: string }) {
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center px-6 py-10 text-center gap-5 bg-white text-zinc-900">
+    <div className="flex min-h-screen w-full flex-col items-center justify-center px-6 py-10 text-center gap-5  text-zinc-900">
       {/* Logo & Ping Animation */}
       <div className="relative flex size-44 items-center justify-center">
         <span className="absolute inline-flex rounded-full bg-blue-500/10 animate-ping size-30" />
@@ -220,18 +220,83 @@ export function WaitingLiveScreen({ title }: { title?: string }) {
 // ----------------------------------------------------------------------
 export function LiveEndedScreen({ title }: { title?: string }) {
   return (
-    <div className="flex h-screen w-full flex-col items-center justify-center bg-gradient-to-b from-background to-muted/30 px-6 text-center gap-4">
-      <div className="flex size-16 items-center justify-center rounded-full bg-muted">
-        <Sparkles className="size-8 text-muted-foreground" />
+    <div className="flex min-h-screen w-full flex-col items-center justify-center px-6 py-10 text-center gap-5  text-zinc-900">
+      {/* Logo */}
+      <div className="relative flex size-44 items-center justify-center">
+        <div className="relative size-40 overflow-hidden rounded-full border-2 border-zinc-100 shadow-md grayscale">
+          <Image
+            src="/images/saimon.jpg"
+            alt="โลโก้ร้านไซม่อนซีฟู้ด"
+            fill
+            priority
+            className="object-cover"
+          />
+        </div>
       </div>
-      <div className="space-y-1.5">
-        <h1 className="text-lg font-bold">
+
+      {/* Texts */}
+      <div className="space-y-1.5 max-w-sm">
+        <h1 className="text-2xl font-bold text-zinc-900">
           {title ? `ไลฟ์ "${title}" จบลงแล้ว` : "ไลฟ์วันนี้จบลงแล้ว"}
         </h1>
-        <p className="text-sm text-muted-foreground max-w-xs">
+        <p className="text-base text-zinc-500 leading-relaxed">
           ขอบคุณที่ติดตามชมนะครับ/คะ พบกันใหม่ในรอบไลฟ์ถัดไป
           ติดตามช่องทางโซเชียลของร้านไว้ได้เลย
         </p>
+      </div>
+
+      {/* Status indicator */}
+      <div className="flex items-center gap-2 text-sm font-medium text-zinc-600 bg-zinc-50 border border-zinc-200/80 px-3.5 py-1.5 rounded-full shadow-2xs">
+        <span className="size-3 rounded-full bg-zinc-400" />
+        ไลฟ์จบแล้ว
+      </div>
+
+      {/* Divider */}
+      <div className="w-full max-w-xs flex items-center gap-3 pt-2">
+        <div className="h-px flex-1 bg-[#333333]" />
+        <span className="text-[11px] font-medium text-[#333333]">
+          ช่องทางติดต่อและติดตาม
+        </span>
+        <div className="h-px flex-1 bg-[#333333]" />
+      </div>
+
+      {/* Contact Channels */}
+      <div className="w-full max-w-md grid grid-cols-2 gap-2.5">
+        {/* Facebook */}
+        <Button
+          render={
+            <Link
+              href="https://www.facebook.com/adminzimond"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <svg
+                className="size-4.5 fill-current"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+              </svg>
+              Facebook Fanpage
+              <ExternalLink className="size-3.5 ml-auto opacity-70" />
+            </Link>
+          }
+          size={"xl"}
+          className="w-full bg-[#1877F2] hover:bg-[#166fe5] text-white font-medium rounded-md shadow-2xs gap-2 transition-transform active:scale-[0.98]"
+        />
+
+        {/* Phone Contact */}
+        <Button
+          render={
+            <Link href="tel:0943158238">
+              <Phone className="size-4 text-zinc-500" />
+              094-315-8238
+            </Link>
+          }
+          size={"xl"}
+          variant="outline"
+          className="w-full border-zinc-200 text-zinc-700 hover:bg-zinc-50 font-medium text-base rounded-md shadow-2xs gap-2 transition-transform active:scale-[0.98]"
+        />
       </div>
     </div>
   );
@@ -242,7 +307,7 @@ export function LiveEndedScreen({ title }: { title?: string }) {
 // ----------------------------------------------------------------------
 export function CheckingLiveScreen() {
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center px-6 text-center gap-4 bg-white text-zinc-900">
+    <div className="flex min-h-screen w-full flex-col items-center justify-center px-6 text-center gap-4  text-zinc-900">
       {/* Brand Logo with Soft Glow */}
       <div className="relative flex size-44 items-center justify-center">
         <span className="absolute inline-flex rounded-full bg-blue-500/10 animate-ping size-30" />

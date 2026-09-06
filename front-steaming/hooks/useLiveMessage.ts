@@ -50,7 +50,9 @@ export function useLiveMessageStream(liveId: string) {
       return [];
     },
     enabled: Boolean(liveId),
-    staleTime: Infinity,
+    staleTime: 1000 * 5,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 
   useEffect(() => {

@@ -67,6 +67,7 @@ import {
 } from "@/hooks/useLiveSession";
 import { useHostLivekitToken } from "@/hooks/useLivekitToken";
 import { LiveStatus } from "@/services/live-session.service";
+import ImageUpload from "@/components/image-upload";
 
 interface DashboardProps {
   params?: { liveId?: string };
@@ -105,11 +106,11 @@ function HostCameraPreview() {
       <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-zinc-900/90 backdrop-blur px-3 py-1.5 rounded-full border border-zinc-700 shadow-lg z-10">
         <TrackToggle
           source={Track.Source.Microphone}
-          className="rounded-full p-2 hover:bg-zinc-800 text-white transition-colors"
+          className="rounded-full p-2 hover:bg-zinc-800 text-white! transition-colors"
         />
         <TrackToggle
           source={Track.Source.Camera}
-          className="rounded-full p-2 hover:bg-zinc-800 text-white transition-colors"
+          className="rounded-full p-2 hover:bg-zinc-800 text-white! transition-colors"
         />
         {/* ปุ่มสลับโหมดกระจกเงา */}
         <button
@@ -162,6 +163,8 @@ export default function DashboardPage({ params }: DashboardProps) {
     ogImage: "",
     ogTags: [] as string[],
   });
+
+  console.log(formData, "DATA");
 
   useEffect(() => {
     if (session) {
@@ -559,10 +562,16 @@ export default function DashboardPage({ params }: DashboardProps) {
         <div className="lg:col-span-1">
           <Tabs defaultValue="chat" className="h-full flex flex-col">
             <TabsList className="grid grid-cols-2 w-full">
-              <TabsTrigger value="chat" className="gap-1.5 text-xs">
+              <TabsTrigger
+                value="chat"
+                className="gap-1.5 text-xs text-[#333333]!"
+              >
                 <MessageSquare className="size-3.5" /> แชทสด ({messages.length})
               </TabsTrigger>
-              <TabsTrigger value="settings" className="gap-1.5 text-xs">
+              <TabsTrigger
+                value="settings"
+                className="gap-1.5 text-xs text-[#333333]!"
+              >
                 <Settings className="size-3.5" /> ตั้งค่าห้อง & OG
               </TabsTrigger>
             </TabsList>
@@ -695,7 +704,7 @@ export default function DashboardPage({ params }: DashboardProps) {
                           })
                         }
                       >
-                        <SelectTrigger className="h-8 text-xs">
+                        <SelectTrigger className="h-8 text-xs w-full">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -749,38 +758,32 @@ export default function DashboardPage({ params }: DashboardProps) {
                       />
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2">
+                    <div className="grid grid-cols-1 gap-2">
                       <div className="space-y-1.5">
-                        <Label className="text-xs font-medium flex items-center gap-1">
-                          <ImageIcon className="size-3" /> OG Thumbnail URL
-                        </Label>
-                        <Input
-                          value={formData.ogThumbnail}
-                          onChange={(e) =>
+                        <ImageUpload
+                          folder="thumbnails"
+                          label="OG Thumbnail URL"
+                          onUploadSuccess={(res) => {
                             setFormData({
                               ...formData,
-                              ogThumbnail: e.target.value,
-                            })
-                          }
-                          className="h-8 text-xs"
-                          placeholder="https://..."
+                              ogThumbnail: res,
+                            });
+                          }}
+                          defaultValue={formData.ogThumbnail}
                         />
                       </div>
 
                       <div className="space-y-1.5">
-                        <Label className="text-xs font-medium flex items-center gap-1">
-                          <ImageIcon className="size-3" /> OG Image URL
-                        </Label>
-                        <Input
-                          value={formData.ogImage}
-                          onChange={(e) =>
+                        <ImageUpload
+                          folder="og"
+                          label="OG Image URL"
+                          onUploadSuccess={(res) => {
                             setFormData({
                               ...formData,
-                              ogImage: e.target.value,
-                            })
-                          }
-                          className="h-8 text-xs"
-                          placeholder="https://..."
+                              ogImage: res,
+                            });
+                          }}
+                          defaultValue={formData.ogImage}
                         />
                       </div>
                     </div>
@@ -817,7 +820,7 @@ export default function DashboardPage({ params }: DashboardProps) {
                   <Button
                     type="submit"
                     form="settings-form"
-                    size="sm"
+                    size="xl"
                     disabled={updateSessionMutation.isPending}
                     className="w-full gap-2 text-xs h-9"
                   >

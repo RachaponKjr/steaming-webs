@@ -128,3 +128,13 @@
     @apply font-sans;
   }
 }
+
+.custom-pattern {
+	background:
+		  radial-gradient(120px at 100% 0, #E4E4ED 6.25%, #BED4E5 6.3% 18.75%, #E4E4ED 18.8% 31.25%, #BED4E5 31.3% 43.75%, #E4E4ED 43.8% 56.25%, #BED4E5 56.3% 68.75%, #0000 0),
+		  radial-gradient(120px at 0 0, #E4E4ED 6.25%, #BED4E5 6.3% 18.75%, #E4E4ED 18.8% 31.25%, #BED4E5 31.3% 43.75%, #E4E4ED 43.8% 56.25%, #BED4E5 56.3% 68.75%, #0000 0),
+		  radial-gradient(120px at 0 100%, #E4E4ED 6.25%, #BED4E5 6.3% 18.75%, #E4E4ED 18.8% 31.25%, #BED4E5 31.3% 43.75%, #E4E4ED 43.8% 56.25%, #BED4E5 56.3% 68.75%, #0000 0),
+		  radial-gradient(120px at 100% 100%, #E4E4ED 6.25%, #BED4E5 6.3% 18.75%, #E4E4ED 18.8% 31.25%, #BED4E5 31.3% 43.75%, #E4E4ED 43.8% 56.25%, #BED4E5 56.3% 68.75%, #0000 0) #E4E4ED;
+	background-size: 120px 120px;
+	background-color: #E4E4ED;
+}

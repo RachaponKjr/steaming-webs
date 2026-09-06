@@ -72,7 +72,11 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const page = () => {
-  return <LiveViewerEntry />;
+  return (
+    <div className="custom-pattern">
+      <LiveViewerEntry />
+    </div>
+  );
 };
 
 export default page;
