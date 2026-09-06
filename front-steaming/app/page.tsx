@@ -17,6 +17,7 @@ export async function generateMetadata(): Promise<Metadata> {
     const description = room?.ogDescription || defaultDesc;
     const ogImage = room?.ogImage || room?.ogThumbnail || defaultImage;
     const tags = room?.ogTags && room.ogTags.length > 0 ? room.ogTags : [];
+    console.log(room, "ROOM");
 
     return {
       metadataBase: new URL(siteUrl),

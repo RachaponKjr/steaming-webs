@@ -164,8 +164,6 @@ export default function DashboardPage({ params }: DashboardProps) {
     ogTags: [] as string[],
   });
 
-  console.log(formData, "DATA");
-
   useEffect(() => {
     if (session) {
       setFormData({
@@ -224,9 +222,12 @@ export default function DashboardPage({ params }: DashboardProps) {
 
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
+
+    const { title, status, ...ogMeta } = formData;
+
     updateSessionMutation.mutate({
       liveId,
-      data: formData,
+      data: ogMeta,
     });
   };
 

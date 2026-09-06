@@ -4,6 +4,7 @@ import { toast } from "@/components/ui/toast";
 
 import { useMutation } from "@tanstack/react-query";
 import { api } from "@/services/api/client";
+import axios from "axios";
 
 export type ResponseUpload = {
   folder: string;
@@ -19,14 +20,9 @@ export function useUpload() {
       formData.append("file", file);
 
       // 💡 แก้จาก /upload เป็น /upload/image และส่ง query string ให้ถูกวิธี
-      return await api.post<ResponseUpload>(
-        `/upload/image?folder=${folder}`,
+      return await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/upload/image?folder=${folder}`,
         formData,
-        {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
-        },
       );
     },
     onSuccess: () => {
