@@ -39,6 +39,8 @@ import {
   VideoTrack,
   useTracks,
   AudioTrack,
+  RoomAudioRenderer,
+  StartAudio,
 } from "@livekit/components-react";
 import { Track } from "livekit-client";
 import "@livekit/components-styles";
@@ -404,6 +406,9 @@ export default function HomePage({ liveId }: { liveId: string }) {
             onConnected={() => setRoomError("")}
           >
             <LiveStreamPlayer />
+
+            <RoomAudioRenderer />
+            <StartAudio label="คลิกเพื่อเปิดเสียงไลฟ์สด" />
             {roomError && (
               <div className="absolute inset-x-0 bottom-0 z-20 bg-black/80 text-rose-300 text-[11px] px-3 py-2 text-center">
                 เชื่อมต่อสัญญาณไม่สำเร็จ กำลังลองใหม่... ({roomError})

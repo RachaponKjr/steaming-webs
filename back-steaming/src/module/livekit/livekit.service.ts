@@ -36,7 +36,7 @@ export class LivekitService {
       roomJoin: true,
       room,
       // Host เท่านั้นที่ publish กล้อง/ไมค์ได้ ผู้ชมดูอย่างเดียว
-      canPublish: false,
+      canPublish: isHost,
       canPublishData: true,
       canSubscribe: true,
       // ให้ห้องถูกสร้างอัตโนมัติเมื่อ Host เข้าห้องครั้งแรก
