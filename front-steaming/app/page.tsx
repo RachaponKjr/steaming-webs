@@ -2,23 +2,28 @@ import { Metadata } from "next";
 import LiveViewerEntry from "./_components/LiveViewerEntry";
 import { roomService } from "@/services/room.service";
 
-export async function generateMetadata(): Promise<Metadata> {
-  const defaultTitle =
-    "ไซม่อนซีฟู้ด | ถ่ายทอดสด อาหารทะเลสด-แช่แข็ง คุณภาพพรีเมียม";
-  const defaultDesc =
-    "ชมไลฟ์สดสั่งซื้ออาหารทะเลสด-แช่แข็ง วัตถุดิบชาบู สุกี้ หม่าล่า หมูกระทะ ส่งฟรีทั่วประเทศ เก็บเงินปลายทาง รับประกันทุกกรณี";
-  const defaultImage = "/images/saimon.jpg";
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+const defaultTitle =
+  "ไซม่อนซีฟู้ด | ถ่ายทอดสด อาหารทะเลสด-แช่แข็ง คุณภาพพรีเมียม";
+const defaultDesc =
+  "ชมไลฟ์สดสั่งซื้ออาหารทะเลสด-แช่แข็ง วัตถุดิบชาบู สุกี้ หม่าล่า หมูกระทะ ส่งฟรีทั่วประเทศ เก็บเงินปลายทาง รับประกันทุกกรณี";
+const defaultImage = "/images/saimon.jpg";
+const siteUrl = "https://api.zimonds.com";
 
+// 1. ทำให้ generateMetadata มีความปลอดภัยมากขึ้น ป้องกันหน้าพังถ้า API ล่ม
+export async function generateMetadata(): Promise<Metadata> {
   try {
-    const room = await roomService.getTodayRoom();
+    // กำหนดเวลา Timeout หรือดึงข้อมูลแบบปลอดภัย
+    const room = await roomService.getTodayRoom().catch(() => null);
+
+    if (!room) {
+      return getFallbackMetadata();
+    }
 
     const title = room?.ogTitle || room?.title || defaultTitle;
     const description = room?.ogDescription || defaultDesc;
     const ogImage = room?.ogImage || room?.ogThumbnail || defaultImage;
     const tags = room?.ogTags && room.ogTags.length > 0 ? room.ogTags : [];
-    console.log(room, "ROOM!");
-
+    console.log(room);
     return {
       metadataBase: new URL(siteUrl),
       title,
@@ -40,14 +45,7 @@ export async function generateMetadata(): Promise<Metadata> {
         title,
         description,
         siteName: "ไซม่อนซีฟู้ด",
-        images: [
-          {
-            url: ogImage,
-            width: 1200,
-            height: 630,
-            alt: title,
-          },
-        ],
+        images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
       },
       twitter: {
         card: "summary_large_image",
@@ -61,18 +59,30 @@ export async function generateMetadata(): Promise<Metadata> {
       },
     };
   } catch (error) {
-    return {
-      metadataBase: new URL(siteUrl),
-      title: defaultTitle,
-      description: defaultDesc,
-      openGraph: {
-        images: [defaultImage],
-      },
-    };
+    return getFallbackMetadata();
   }
 }
 
-const page = () => {
+function getFallbackMetadata(): Metadata {
+  return {
+    metadataBase: new URL(siteUrl),
+    title: defaultTitle,
+    description: defaultDesc,
+    openGraph: {
+      title: defaultTitle,
+      description: defaultDesc,
+      images: [defaultImage],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: defaultTitle,
+      description: defaultDesc,
+      images: [defaultImage],
+    },
+  };
+}
+
+const Page = () => {
   return (
     <div className="custom-pattern">
       <LiveViewerEntry />
@@ -80,4 +90,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

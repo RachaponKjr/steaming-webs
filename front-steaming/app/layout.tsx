@@ -19,14 +19,14 @@ const siteConfig = {
   shortName: "ไซม่อนซีฟู้ด",
   description:
     "อาหารทะเลสด-แช่แข็ง วัตถุดิบ ชาบู สุกี้ หม่าล่า หมูกระทะ คุณภาพพรีเมียม ส่งฟรีทั่วประเทศ มีบริการเก็บเงินปลายทาง พร้อมรับประกันสินค้าเคลมได้ทุกกรณี",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "https://yourdomain.com",
+  url: "https://zimonds.com",
   ogImage: "/images/saimon.jpg",
 };
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.shortName} | อาหารทะเลสด แช่แข็ง ชาบู หมูกระทะ ส่งฟรีทั่วประเทศ`,
+    default: `${siteConfig.shortName} | อาหารทะเลสด แช่แข็ง ส่งฟรีทั่วประเทศ`,
     template: `%s | ${siteConfig.shortName}`,
   },
   description: siteConfig.description,

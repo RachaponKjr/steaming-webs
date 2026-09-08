@@ -193,7 +193,6 @@ export const ChatSide = ({
         messageToAdminId: orderForm.messageToAdminId,
       };
 
-      console.log("บันทึกคำสั่งซื้อ:", payload);
       alert("บันทึกคำสั่งซื้อเรียบร้อยแล้ว");
     } catch (err) {
       console.error(err);

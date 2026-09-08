@@ -15,7 +15,6 @@ export default function AdminInboxPage() {
 
   // ดึงรายการข้อความทั้งหมดเพื่อตั้งค่าเลือกคนแรกอัตโนมัติ (Default Active)
   const { data: conversations = [] } = useLatestConversations();
-  console.log(conversations, "CONVERSATIONS");
   useEffect(() => {
     if (!selectedCustomer && conversations.length > 0) {
       setSelectedCustomer(conversations[0]);

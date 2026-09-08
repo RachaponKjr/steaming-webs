@@ -82,9 +82,6 @@ export default function AdminsPage() {
     password: "",
     role: "ADMIN",
   });
-
-  // Edit Modal State
-
   // Filter Logic
   const filteredAdmins = members.filter((admin) => {
     const matchesSearch =
@@ -126,19 +123,19 @@ export default function AdminsPage() {
     switch (role) {
       case "SUPER_ADMIN":
         return (
-          <Badge className="bg-red-500/10 text-red-600 hover:bg-red-500/20 border-red-500/30 gap-1 text-[11px]">
+          <Badge className="bg-red-500/10 text-red-600 hover:bg-red-500/20 border-red-500/30 gap-1 text-[10px] sm:text-[11px] whitespace-nowrap">
             <ShieldAlert className="size-3" /> SUPER ADMIN
           </Badge>
         );
       case "ADMIN":
         return (
-          <Badge className="bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 border-amber-500/30 gap-1 text-[11px]">
+          <Badge className="bg-amber-500/10 text-amber-600 hover:bg-amber-500/20 border-amber-500/30 gap-1 text-[10px] sm:text-[11px] whitespace-nowrap">
             <ShieldCheck className="size-3" /> ADMIN
           </Badge>
         );
       case "MODERATOR":
         return (
-          <Badge className="bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border-blue-500/30 gap-1 text-[11px]">
+          <Badge className="bg-blue-500/10 text-blue-600 hover:bg-blue-500/20 border-blue-500/30 gap-1 text-[10px] sm:text-[11px] whitespace-nowrap">
             <Shield className="size-3" /> MODERATOR
           </Badge>
         );
@@ -155,24 +152,24 @@ export default function AdminsPage() {
   const totalMods = members.filter((a) => a.role === "MODERATOR").length;
 
   return (
-    <div className="flex-1 space-y-6 p-4 md:p-8 pt-6 max-w-[1600px] mx-auto">
+    <div className="flex-1 space-y-4 sm:space-y-6 p-3 sm:p-6 lg:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden">
       {/* 1. Header Bar */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight truncate">
             จัดการผู้ดูแลระบบ (Admins)
           </h2>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             กำหนดสิทธิ์และจัดการรายชื่อทีมงานผู้ดูแลระบบสตรีมมิง
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
           <Button
             variant="outline"
-            size="lg"
+            size="default"
             onClick={() => refetch()}
             disabled={isRefetching}
-            className="gap-1.5"
+            className="gap-1.5 text-xs sm:text-sm flex-1 sm:flex-initial"
           >
             <RefreshCw
               className={`size-4 ${isRefetching ? "animate-spin" : ""}`}
@@ -180,8 +177,8 @@ export default function AdminsPage() {
             รีเฟรช
           </Button>
           <Button
-            size="lg"
-            className="gap-1.5 rounded-md"
+            size="default"
+            className="gap-1.5 rounded-md text-xs sm:text-sm flex-1 sm:flex-initial"
             onClick={() => setIsCreateOpen(true)}
           >
             <UserPlus className="size-4" /> เพิ่มผู้ดูแลใหม่
@@ -190,54 +187,66 @@ export default function AdminsPage() {
       </div>
 
       {/* 2. Top Metric Cards */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">แอดมินทั้งหมด</CardTitle>
-            <Shield className="size-4 text-primary" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 sm:p-6 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">
+              แอดมินทั้งหมด
+            </CardTitle>
+            <Shield className="size-4 text-primary shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{members.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold">
+              {members.length}
+            </div>
+            <p className="text-[11px] sm:text-xs text-muted-foreground mt-1">
               ผู้มีสิทธิ์เข้าถึงระบบ
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Super Admin</CardTitle>
-            <ShieldAlert className="size-4 text-red-500" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 sm:p-6 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">
+              Super Admin
+            </CardTitle>
+            <ShieldAlert className="size-4 text-red-500 shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalSuperAdmins}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold">
+              {totalSuperAdmins}
+            </div>
+            <p className="text-[11px] sm:text-xs text-muted-foreground mt-1">
               สิทธิ์สูงสุดในระบบ
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Admin</CardTitle>
-            <ShieldCheck className="size-4 text-amber-500" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 sm:p-6 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">
+              Admin
+            </CardTitle>
+            <ShieldCheck className="size-4 text-amber-500 shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalAdmins}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold">{totalAdmins}</div>
+            <p className="text-[11px] sm:text-xs text-muted-foreground mt-1">
               จัดการห้องสตรีม & สินค้า
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">Moderator</CardTitle>
-            <Shield className="size-4 text-blue-500" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 sm:p-6 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">
+              Moderator
+            </CardTitle>
+            <Shield className="size-4 text-blue-500 shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{totalMods}</div>
-            <p className="text-xs text-muted-foreground mt-1">
+          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold">{totalMods}</div>
+            <p className="text-[11px] sm:text-xs text-muted-foreground mt-1">
               ผู้ดูแลแชท & ความเรียบร้อย
             </p>
           </CardContent>
@@ -246,10 +255,10 @@ export default function AdminsPage() {
 
       {/* 3. Table & Filters Area */}
       <Card>
-        <CardHeader className="p-4 md:p-6 pb-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <CardHeader className="p-3 sm:p-6 pb-3 sm:pb-4">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-3">
             <div>
-              <CardTitle className="text-base md:text-lg font-semibold">
+              <CardTitle className="text-base sm:text-lg font-semibold">
                 รายชื่อแอดมินทั้งหมด
               </CardTitle>
               <CardDescription className="text-xs">
@@ -258,7 +267,7 @@ export default function AdminsPage() {
             </div>
 
             {/* Filter Controls */}
-            <div className="flex flex-wrap items-center gap-2.5">
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
               <div className="relative w-full sm:w-64">
                 <Search className="absolute left-2.5 top-2.5 size-4 text-muted-foreground" />
                 <Input
@@ -273,7 +282,7 @@ export default function AdminsPage() {
                 value={roleFilter}
                 onValueChange={(val) => setRoleFilter(val as string)}
               >
-                <SelectTrigger className="h-9 text-xs w-[140px]">
+                <SelectTrigger className="h-9 text-xs w-full sm:w-[150px]">
                   <SelectValue placeholder="ระดับสิทธิ์ (Role)" />
                 </SelectTrigger>
                 <SelectContent>
@@ -288,18 +297,19 @@ export default function AdminsPage() {
         </CardHeader>
 
         <CardContent className="p-0">
+          {/* ครอบด้วย overflow-x-auto เพื่อรองรับจอมือถือ */}
           <div className="overflow-x-auto">
-            <Table>
+            <Table className="min-w-[850px]">
               <TableHeader>
                 <TableRow className="text-xs">
-                  <TableHead className="w-[300px]">
+                  <TableHead className="w-[280px]">
                     ผู้ดูแล (Name / ID)
                   </TableHead>
                   <TableHead>อีเมลติดต่อ</TableHead>
                   <TableHead>บทบาท (Role)</TableHead>
                   <TableHead>วันที่สร้างบัญชี</TableHead>
                   <TableHead>อัปเดตล่าสุด</TableHead>
-                  <TableHead></TableHead>
+                  <TableHead className="text-right">จัดการ</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -339,18 +349,18 @@ export default function AdminsPage() {
                       {/* Name & Avatar */}
                       <TableCell>
                         <div className="flex items-center gap-3">
-                          <Avatar className="size-9">
+                          <Avatar className="size-8 sm:size-9 shrink-0">
                             <AvatarFallback className="font-semibold text-xs bg-primary/10 text-primary">
                               {admin.name
                                 ? admin.name.substring(0, 2).toUpperCase()
                                 : "AD"}
                             </AvatarFallback>
                           </Avatar>
-                          <div>
-                            <div className="font-medium text-foreground">
+                          <div className="min-w-0">
+                            <div className="font-medium text-foreground truncate max-w-[200px]">
                               {admin.name}
                             </div>
-                            <div className="text-[11px] text-muted-foreground font-mono">
+                            <div className="text-[11px] text-muted-foreground font-mono truncate max-w-[200px]">
                               ID: {admin.id}
                             </div>
                           </div>
@@ -359,9 +369,9 @@ export default function AdminsPage() {
 
                       {/* Email */}
                       <TableCell>
-                        <div className="flex items-center gap-1.5 text-muted-foreground">
-                          <Mail className="size-3" />
-                          <span>{admin.email}</span>
+                        <div className="flex items-center gap-1.5 text-muted-foreground truncate max-w-[220px]">
+                          <Mail className="size-3 shrink-0" />
+                          <span className="truncate">{admin.email}</span>
                         </div>
                       </TableCell>
 
@@ -369,7 +379,7 @@ export default function AdminsPage() {
                       <TableCell>{renderRoleBadge(admin.role)}</TableCell>
 
                       {/* Created At */}
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="text-muted-foreground whitespace-nowrap">
                         {new Date(admin.createdAt).toLocaleDateString("th-TH", {
                           day: "2-digit",
                           month: "short",
@@ -378,38 +388,49 @@ export default function AdminsPage() {
                       </TableCell>
 
                       {/* Updated At */}
-                      <TableCell className="text-muted-foreground">
+                      <TableCell className="text-muted-foreground whitespace-nowrap">
                         {new Date(admin.updatedAt).toLocaleDateString("th-TH", {
                           day: "2-digit",
                           month: "short",
                           year: "numeric",
                         })}
                       </TableCell>
-                      <TableCell className="flex justify-end text-muted-foreground ">
+
+                      {/* Delete Action */}
+                      <TableCell className="text-right">
                         <Dialog>
                           <DialogTrigger>
-                            <Button size={"icon-lg"} variant={"destructive"}>
-                              <Trash2 />
+                            <Button
+                              size="sm"
+                              variant="destructive"
+                              className="h-8 px-2.5"
+                            >
+                              <Trash2 className="size-3.5" />
                             </Button>
                           </DialogTrigger>
-                          <DialogContent>
+                          <DialogContent className="w-[95vw] sm:max-w-[400px] rounded-lg">
                             <DialogHeader>
                               <DialogTitle className="text-base font-semibold">
-                                ลบบัญชีผู้ดูแลระบบใหม่
+                                ลบบัญชีผู้ดูแลระบบ
                               </DialogTitle>
                               <DialogDescription className="text-xs">
-                                คุณต้องการลบบัญชีผู้ดูแลระบบนี้จริงหรือไม่?
+                                คุณต้องการลบบัญชีผู้ดูแลระบบ ({admin.name})
+                                นี้จริงหรือไม่?
                               </DialogDescription>
                             </DialogHeader>
-                            <DialogFooter>
+                            <DialogFooter className="gap-2 sm:gap-0">
                               <DialogClose>
-                                <Button variant={"outline"}>ยกเลิก</Button>
+                                <Button variant="outline" size="sm">
+                                  ยกเลิก
+                                </Button>
                               </DialogClose>
                               <Button
-                                variant={"destructive"}
+                                variant="destructive"
+                                size="sm"
+                                disabled={isDeleting}
                                 onClick={() => deleteMember(admin.id)}
                               >
-                                ลบบัญชี
+                                {isDeleting ? "กำลังลบ..." : "ลบบัญชี"}
                               </Button>
                             </DialogFooter>
                           </DialogContent>
@@ -426,7 +447,7 @@ export default function AdminsPage() {
 
       {/* 4. Create Admin Dialog */}
       <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
-        <DialogContent className="sm:max-w-[425px]">
+        <DialogContent className="w-[95vw] sm:max-w-[425px] rounded-lg">
           <DialogHeader>
             <DialogTitle className="text-base font-semibold">
               เพิ่มผู้ดูแลระบบใหม่
@@ -519,12 +540,12 @@ export default function AdminsPage() {
               </Select>
             </div>
 
-            <DialogFooter className="pt-3 gap-2">
+            <DialogFooter className="pt-3 gap-2 flex-col sm:flex-row">
               <Button
                 type="button"
                 variant="outline"
-                size="lg"
-                className="flex-1"
+                size="default"
+                className="w-full sm:flex-1"
                 disabled={isCreating}
                 onClick={() => setIsCreateOpen(false)}
               >
@@ -532,8 +553,8 @@ export default function AdminsPage() {
               </Button>
               <Button
                 type="submit"
-                size="lg"
-                className="flex-1"
+                size="default"
+                className="w-full sm:flex-1"
                 disabled={isCreating}
               >
                 {isCreating ? (

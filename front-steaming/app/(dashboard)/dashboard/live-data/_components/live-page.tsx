@@ -112,17 +112,24 @@ export default function LiveDataPage() {
         return (
           <Badge
             variant="default"
-            className="bg-emerald-600 hover:bg-emerald-700 animate-pulse"
+            className="bg-emerald-600 hover:bg-emerald-700 animate-pulse text-[10px] sm:text-xs"
           >
             กำลังไลฟ์
           </Badge>
         );
       case "ENDED":
-        return <Badge variant="secondary">สิ้นสุดแล้ว</Badge>;
+        return (
+          <Badge variant="secondary" className="text-[10px] sm:text-xs">
+            สิ้นสุดแล้ว
+          </Badge>
+        );
       case "IDLE":
       default:
         return (
-          <Badge variant="outline" className="text-amber-600 border-amber-300">
+          <Badge
+            variant="outline"
+            className="text-amber-600 border-amber-300 text-[10px] sm:text-xs"
+          >
             เตรียมพร้อม
           </Badge>
         );
@@ -159,26 +166,29 @@ export default function LiveDataPage() {
   }
 
   return (
-    <div className="mx-auto p-4 space-y-6">
+    <div className="mx-auto p-3 sm:p-6 space-y-6 max-w-[1600px] w-full">
       <Card>
-        <CardHeader>
-          <CardTitle>รายการห้องไลฟ์สดประจำวัน</CardTitle>
-          <CardDescription>
+        <CardHeader className="p-4 sm:p-6">
+          <CardTitle className="text-lg sm:text-xl">
+            รายการห้องไลฟ์สดประจำวัน
+          </CardTitle>
+          <CardDescription className="text-xs sm:text-sm">
             ตารางแสดงสถิติ ข้อความแชท และรายการคำสั่งซื้อจัดส่งแยกตามแต่ละวัน
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <div className="rounded-md border">
-            <Table>
+        <CardContent className="p-0 sm:p-6 sm:pt-0">
+          {/* ครอบด้วย overflow-x-auto เพื่อให้ตารางเลื่อนซ้าย-ขวาได้บนจอมือถือ */}
+          <div className="rounded-md border overflow-x-auto">
+            <Table className="min-w-[800px]">
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-[140px]">วันที่ไลฟ์</TableHead>
+                  <TableHead className="w-[120px]">วันที่ไลฟ์</TableHead>
                   <TableHead>ชื่อห้อง / ข้อมูล</TableHead>
                   <TableHead className="text-center">สถานะ</TableHead>
                   <TableHead className="text-center">ช่วงเวลาไลฟ์</TableHead>
                   <TableHead className="text-center">ข้อความแชท</TableHead>
-                  <TableHead className="text-center">ยอดคำสั่งซื้อ</TableHead>
-                  <TableHead className="text-right">จัดการ</TableHead>
+                  {/* <TableHead className="text-center">ยอดคำสั่งซื้อ</TableHead> */}
+                  {/* <TableHead className="text-right">จัดการ</TableHead> */}
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -216,17 +226,17 @@ export default function LiveDataPage() {
                   rooms.map((room) => (
                     <TableRow key={room.id}>
                       {/* วันที่ไลฟ์ */}
-                      <TableCell className="font-semibold text-zinc-900 whitespace-nowrap">
+                      <TableCell className="font-semibold text-zinc-900 whitespace-nowrap text-xs sm:text-sm">
                         {formatDateOnly(room.liveDate)}
                       </TableCell>
 
                       {/* หัวข้อและ Stream Key */}
                       <TableCell>
-                        <div className="flex flex-col">
-                          <span className="font-medium text-zinc-900">
+                        <div className="flex flex-col max-w-[220px] sm:max-w-xs">
+                          <span className="font-medium text-zinc-900 truncate text-xs sm:text-sm">
                             {room.title}
                           </span>
-                          <span className="text-xs text-muted-foreground font-mono truncate max-w-[200px]">
+                          <span className="text-[11px] text-muted-foreground font-mono truncate">
                             Key: {room.streamKey}
                           </span>
                         </div>
@@ -238,7 +248,7 @@ export default function LiveDataPage() {
                       </TableCell>
 
                       {/* เวลาเริ่ม - จบ */}
-                      <TableCell className="text-center text-sm text-zinc-600 whitespace-nowrap">
+                      <TableCell className="text-center text-xs sm:text-sm text-zinc-600 whitespace-nowrap">
                         {formatDateTime(room.startedAt)} -{" "}
                         {formatDateTime(room.endedAt)}
                       </TableCell>
@@ -248,7 +258,7 @@ export default function LiveDataPage() {
                         <Button
                           variant="ghost"
                           size="sm"
-                          className="gap-1.5 text-zinc-600 hover:text-zinc-900"
+                          className="gap-1.5 text-zinc-600 hover:text-zinc-900 text-xs h-8 px-2"
                           onClick={() => {
                             setSelectedRoom(room);
                             setActiveModal("chat");
@@ -260,21 +270,20 @@ export default function LiveDataPage() {
                       </TableCell>
 
                       {/* จำนวนคำสั่งซื้อ */}
-                      <TableCell className="text-center">
+                      {/* <TableCell className="text-center">
                         <Badge
                           variant="secondary"
-                          className="font-medium bg-blue-50 text-blue-700 hover:bg-blue-100"
+                          className="font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 text-[10px] sm:text-xs"
                         >
                           {room._count.orders} รายการ
                         </Badge>
                       </TableCell>
 
-                      {/* ปุ่มดูคำสั่งซื้อ */}
                       <TableCell className="text-right">
                         <Button
                           variant="outline"
                           size="sm"
-                          className="gap-1.5 text-blue-600 border-blue-200 hover:bg-blue-50"
+                          className="gap-1.5 text-blue-600 border-blue-200 hover:bg-blue-50 text-xs h-8 px-2.5"
                           onClick={() => {
                             setSelectedRoom(room);
                             setActiveModal("orders");
@@ -283,14 +292,14 @@ export default function LiveDataPage() {
                           <ShoppingBag className="w-3.5 h-3.5" />
                           ดูคำสั่งซื้อ
                         </Button>
-                      </TableCell>
+                      </TableCell> */}
                     </TableRow>
                   ))
                 ) : (
                   <TableRow>
                     <TableCell
                       colSpan={7}
-                      className="h-32 text-center text-zinc-500"
+                      className="h-32 text-center text-zinc-500 text-sm"
                     >
                       ไม่พบข้อมูลห้องไลฟ์สด
                     </TableCell>
@@ -307,16 +316,18 @@ export default function LiveDataPage() {
         open={activeModal === "chat"}
         onOpenChange={(open) => !open && setActiveModal(null)}
       >
-        <DialogContent className="sm:max-w-[450px]">
+        <DialogContent className="w-[95vw] sm:max-w-[450px] rounded-lg">
           <DialogHeader>
-            <DialogTitle>ข้อความแชท: {selectedRoom?.title}</DialogTitle>
-            <DialogDescription>
+            <DialogTitle className="text-base sm:text-lg truncate">
+              ข้อความแชท: {selectedRoom?.title}
+            </DialogTitle>
+            <DialogDescription className="text-xs">
               วันที่ {selectedRoom && formatDateOnly(selectedRoom.liveDate)}{" "}
               (ทั้งหมด {selectedRoom?._count.messages} ข้อความ)
             </DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="h-80 w-full rounded-md border p-3">
+          <ScrollArea className="h-[60vh] sm:h-80 w-full rounded-md border p-3">
             {selectedRoom?.messages?.length ? (
               <div className="space-y-3">
                 {selectedRoom.messages.map((msg) => {
@@ -324,15 +335,15 @@ export default function LiveDataPage() {
                   return (
                     <div
                       key={msg.id}
-                      className={`p-2.5 rounded-lg border text-sm ${
+                      className={`p-2.5 rounded-lg border text-xs sm:text-sm ${
                         isAdmin
                           ? "bg-amber-50 border-amber-200"
                           : "bg-muted/50 border-border"
                       }`}
                     >
-                      <div className="flex justify-between items-center text-xs text-muted-foreground mb-1">
+                      <div className="flex justify-between items-center text-[11px] text-muted-foreground mb-1">
                         <span
-                          className={`font-semibold ${
+                          className={`font-semibold truncate max-w-[70%] ${
                             isAdmin ? "text-amber-800" : "text-zinc-700"
                           }`}
                         >
@@ -340,7 +351,7 @@ export default function LiveDataPage() {
                         </span>
                         <span>{formatDateTime(msg.createdAt)}</span>
                       </div>
-                      <p className="text-zinc-800">{msg.content}</p>
+                      <p className="text-zinc-800 break-words">{msg.content}</p>
                     </div>
                   );
                 })}
@@ -359,61 +370,65 @@ export default function LiveDataPage() {
         open={activeModal === "orders"}
         onOpenChange={(open) => !open && setActiveModal(null)}
       >
-        <DialogContent className="sm:max-w-[650px]">
+        <DialogContent className="w-[95vw] sm:max-w-[650px] rounded-lg">
           <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-blue-600" />
-              คำสั่งซื้อ: {selectedRoom?.title}
+            <DialogTitle className="flex items-center gap-2 text-base sm:text-lg truncate">
+              <ShoppingBag className="w-5 h-5 text-blue-600 shrink-0" />
+              <span className="truncate">
+                คำสั่งซื้อ: {selectedRoom?.title}
+              </span>
             </DialogTitle>
-            <DialogDescription>
+            <DialogDescription className="text-xs">
               วันที่ {selectedRoom && formatDateOnly(selectedRoom.liveDate)} (พบ{" "}
               {selectedRoom?.orders?.length ?? selectedRoom?._count.orders ?? 0}{" "}
               รายการ)
             </DialogDescription>
           </DialogHeader>
 
-          <ScrollArea className="max-h-[60vh] w-full rounded-md border p-4">
+          <ScrollArea className="max-h-[65vh] w-full rounded-md border p-3 sm:p-4">
             {selectedRoom?.orders?.length ? (
-              <div className="space-y-4">
+              <div className="space-y-3 sm:space-y-4">
                 {selectedRoom.orders.map((ord, idx) => (
                   <div
                     key={ord.id}
-                    className="p-4 rounded-lg border bg-card text-card-foreground shadow-sm space-y-3"
+                    className="p-3 sm:p-4 rounded-lg border bg-card text-card-foreground shadow-sm space-y-2.5"
                   >
-                    <div className="flex justify-between items-start border-b pb-2">
-                      <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold bg-muted px-2 py-0.5 rounded">
+                    <div className="flex justify-between items-start border-b pb-2 gap-2">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <span className="text-[10px] sm:text-xs font-bold bg-muted px-2 py-0.5 rounded shrink-0">
                           #{idx + 1}
                         </span>
-                        <div className="flex items-center gap-1.5 font-semibold text-zinc-900">
-                          <User className="w-4 h-4 text-muted-foreground" />
-                          {ord.customerName}
+                        <div className="flex items-center gap-1.5 font-semibold text-zinc-900 text-xs sm:text-sm truncate">
+                          <User className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground shrink-0" />
+                          <span className="truncate">{ord.customerName}</span>
                         </div>
                       </div>
-                      <span className="text-xs text-muted-foreground font-mono">
+                      <span className="text-[11px] text-muted-foreground font-mono shrink-0">
                         {formatDateTime(ord.createdAt)}
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm text-zinc-700">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs sm:text-sm text-zinc-700">
                       <div className="flex items-center gap-2">
-                        <Phone className="w-4 h-4 text-muted-foreground shrink-0" />
-                        <span>{ord.phoneNumber || "-"}</span>
+                        <Phone className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground shrink-0" />
+                        <span className="truncate">
+                          {ord.phoneNumber || "-"}
+                        </span>
                       </div>
                       <div className="flex items-start gap-2 col-span-full">
-                        <MapPin className="w-4 h-4 text-muted-foreground shrink-0 mt-0.5" />
-                        <span className="text-xs leading-relaxed text-zinc-600">
+                        <MapPin className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-muted-foreground shrink-0 mt-0.5" />
+                        <span className="text-[11px] sm:text-xs leading-relaxed text-zinc-600 break-words">
                           {ord.address || "ไม่ได้ระบุที่อยู่"}
                         </span>
                       </div>
                     </div>
 
                     {(ord.capturedMessage || ord.messageToAdmin?.content) && (
-                      <div className="bg-blue-50/70 border border-blue-100 rounded p-2.5 text-xs text-blue-900">
+                      <div className="bg-blue-50/70 border border-blue-100 rounded p-2.5 text-[11px] sm:text-xs text-blue-900">
                         <span className="font-semibold block mb-0.5">
                           ข้อความที่พิมพ์:
                         </span>
-                        <p className="italic">
+                        <p className="italic break-words">
                           &quot;
                           {ord.capturedMessage || ord.messageToAdmin?.content}
                           &quot;

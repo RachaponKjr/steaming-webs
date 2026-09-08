@@ -91,7 +91,6 @@ export function useReadMessageToAdmin() {
     mutationFn: ({ senderId }) =>
       messageService.readMessageToAdmin({ senderId }),
     onSuccess: (res) => {
-      console.log(res, "RES");
       queryClient.invalidateQueries({ queryKey: ["messages-to-admin"] });
       queryClient.invalidateQueries({
         queryKey: ["messages-to-admin", "conversations", "latest"],

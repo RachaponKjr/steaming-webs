@@ -41,9 +41,8 @@ import {
   ShoppingBag,
   Globe,
   Tag,
-  ImageIcon,
-  Save,
   Loader2,
+  Save,
 } from "lucide-react";
 import { useLiveMessageStream, useSendMessage } from "@/hooks/useLiveMessage";
 import { useLiveChat } from "@/hooks/useLiveChat";
@@ -68,6 +67,7 @@ import {
 import { useHostLivekitToken } from "@/hooks/useLivekitToken";
 import { LiveStatus } from "@/services/live-session.service";
 import ImageUpload from "@/components/image-upload";
+import { ShareButton } from "@/components/layout/share-button";
 
 interface DashboardProps {
   params?: { liveId?: string };
@@ -77,7 +77,7 @@ interface DashboardProps {
 // Sub-component: กล้อง Host (WebRTC)
 // ----------------------------------------------------------------------
 function HostCameraPreview() {
-  const [isMirrored, setIsMirrored] = useState(false); // ค่าเริ่มต้นไม่ mirror เพื่อให้อ่านตัวหนังสือออก
+  const [isMirrored, setIsMirrored] = useState(false);
   const { localParticipant } = useLocalParticipant();
   const tracks = useTracks([Track.Source.Camera], {
     onlySubscribed: false,
@@ -97,13 +97,13 @@ function HostCameraPreview() {
           }`}
         />
       ) : (
-        <div className="text-center text-muted-foreground space-y-2">
+        <div className="text-center text-muted-foreground space-y-2 p-4">
           <Loader2 className="size-8 mx-auto animate-spin text-primary" />
           <p className="text-sm font-medium">กำลังเปิดกล้องและไมโครโฟน...</p>
         </div>
       )}
 
-      <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-zinc-900/90 backdrop-blur px-3 py-1.5 rounded-full border border-zinc-700 shadow-lg z-10">
+      <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2 bg-zinc-900/90 backdrop-blur px-2.5 sm:px-3 py-1.5 rounded-full border border-zinc-700 shadow-lg z-10">
         <TrackToggle
           source={Track.Source.Microphone}
           className="rounded-full p-2 hover:bg-zinc-800 text-white! transition-colors"
@@ -112,11 +112,10 @@ function HostCameraPreview() {
           source={Track.Source.Camera}
           className="rounded-full p-2 hover:bg-zinc-800 text-white! transition-colors"
         />
-        {/* ปุ่มสลับโหมดกระจกเงา */}
         <button
           type="button"
           onClick={() => setIsMirrored((prev) => !prev)}
-          className="text-xs text-white px-2.5 py-1.5 rounded-full hover:bg-zinc-800 border border-zinc-700 transition-colors"
+          className="text-xs text-white px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full hover:bg-zinc-800 border border-zinc-700 transition-colors"
         >
           {isMirrored ? "โหมดกระจก" : "ภาพปกติ"}
         </button>
@@ -124,6 +123,7 @@ function HostCameraPreview() {
     </div>
   );
 }
+
 // ----------------------------------------------------------------------
 // Main Dashboard Page
 // ----------------------------------------------------------------------
@@ -140,7 +140,6 @@ export default function DashboardPage({ params }: DashboardProps) {
   const [quickReply, setQuickReply] = useState("");
   const [tagInput, setTagInput] = useState("");
 
-  // LiveKit Connection State (ขอ token จาก endpoint ที่ป้องกันด้วย JWT แอดมิน)
   const {
     token: livekitToken,
     wsUrl,
@@ -222,9 +221,7 @@ export default function DashboardPage({ params }: DashboardProps) {
 
   const handleSaveSettings = (e: React.FormEvent) => {
     e.preventDefault();
-
     const { title, status, ...ogMeta } = formData;
-
     updateSessionMutation.mutate({
       liveId,
       data: ogMeta,
@@ -303,12 +300,12 @@ export default function DashboardPage({ params }: DashboardProps) {
   }
 
   return (
-    <div className="flex-1 space-y-6 p-4 md:p-8 pt-6 max-w-[1600px] mx-auto">
+    <div className="flex-1 space-y-4 sm:space-y-6 p-3 sm:p-6 lg:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden">
       {/* 1. Header Bar */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl sm:text-3xl font-bold tracking-tight">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+        <div className="min-w-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <h2 className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight truncate max-w-full">
               {session?.title || "Stream Control Center"}
             </h2>
             <Badge
@@ -319,7 +316,7 @@ export default function DashboardPage({ params }: DashboardProps) {
                     ? "outline"
                     : "secondary"
               }
-              className="gap-1.5 font-semibold px-2.5 py-0.5"
+              className="gap-1.5 font-semibold px-2.5 py-0.5 shrink-0"
             >
               <Radio
                 className={`size-3.5 ${
@@ -329,108 +326,101 @@ export default function DashboardPage({ params }: DashboardProps) {
               {session?.status || "IDLE"}
             </Badge>
           </div>
-          <p className="text-sm text-muted-foreground mt-1">
+          <p className="text-xs sm:text-sm text-muted-foreground mt-1">
             Session ID: <span className="font-mono text-xs">{liveId}</span>
           </p>
         </div>
 
-        <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="lg"
-            className="gap-1.5"
-            onClick={() => handleCopy(window.location.href, "url")}
-          >
-            {copiedUrl ? (
-              <Check className="size-4 text-emerald-500" />
-            ) : (
-              <Share2 className="size-4" />
-            )}
-            แชร์ลิงก์ดูไลฟ์
-          </Button>
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
+          <ShareButton url="https://zimonds.com" title={session?.title} />
 
           {isStreaming ? (
             <Button
-              size="lg"
+              size="default"
               variant="destructive"
-              className="gap-1.5"
+              className="gap-1.5 text-xs sm:text-sm flex-1 sm:flex-initial"
               disabled={updateStatusMutation.isPending}
               onClick={() => handleToggleStatus("ENDED")}
             >
-              <StopCircle className="size-4" /> จบการถ่ายทอดสด (END)
+              <StopCircle className="size-4" /> จบการถ่ายทอดสด
             </Button>
           ) : (
             <Button
-              size="lg"
-              className="gap-1.5"
+              size="default"
+              className="gap-1.5 text-xs sm:text-sm flex-1 sm:flex-initial"
               disabled={updateStatusMutation.isPending}
               onClick={() => handleToggleStatus("STREAMING")}
             >
-              <PlayCircle className="size-4" /> เริ่มถ่ายทอดสด (GO LIVE)
+              <PlayCircle className="size-4" /> เริ่มถ่ายทอดสด
             </Button>
           )}
         </div>
       </div>
 
       {/* 2. Top Metric Cards */}
-      <div className="grid gap-4 grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 sm:gap-4 grid-cols-2 lg:grid-cols-4">
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">ผู้ชมปัจจุบัน</CardTitle>
-            <Users className="size-4 text-primary" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 sm:p-6 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">
+              ผู้ชมปัจจุบัน
+            </CardTitle>
+            <Users className="size-4 text-primary shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{viewerCount}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              สถานะ:{" "}
+          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold">{viewerCount}</div>
+            <p className="text-[11px] sm:text-xs text-muted-foreground mt-1 truncate">
               {isConnected ? "🟢 เชื่อมต่อเสถียร" : "🔴 กำลังเชื่อมต่อ..."}
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 sm:p-6 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">
               ข้อความทั้งหมด
             </CardTitle>
-            <MessageSquare className="size-4 text-emerald-500" />
+            <MessageSquare className="size-4 text-emerald-500 shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{messages.length}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              อัปเดตแบบเรียลไทม์
+          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold">
+              {messages.length}
+            </div>
+            <p className="text-[11px] sm:text-xs text-muted-foreground mt-1">
+              อัปเดตเรียลไทม์
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 sm:p-6 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">
               คำสั่งซื้อ / CF
             </CardTitle>
-            <ShoppingBag className="size-4 text-amber-500" />
+            <ShoppingBag className="size-4 text-amber-500 shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
+          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold">
               {messages.filter((m) => m.message?.startsWith("🛍️")).length}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              ข้อความแท็กสั่งซื้อสินค้า
+            <p className="text-[11px] sm:text-xs text-muted-foreground mt-1">
+              แท็กสั่งซื้อสินค้า
             </p>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="flex flex-row items-center justify-between pb-2">
-            <CardTitle className="text-sm font-medium">สถานะไลฟ์</CardTitle>
-            <Clock className="size-4 text-blue-500" />
+          <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 sm:p-6 sm:pb-2">
+            <CardTitle className="text-xs sm:text-sm font-medium">
+              สถานะไลฟ์
+            </CardTitle>
+            <Clock className="size-4 text-blue-500 shrink-0" />
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold font-mono">
+          <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
+            <div className="text-xl sm:text-2xl font-bold font-mono truncate">
               {session?.status || "IDLE"}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
-              เริ่มเมื่อ:{" "}
+            <p className="text-[11px] sm:text-xs text-muted-foreground mt-1 truncate">
+              เริ่ม:{" "}
               {session?.startedAt
                 ? new Date(session.startedAt).toLocaleTimeString("th-TH")
                 : "-"}
@@ -440,19 +430,19 @@ export default function DashboardPage({ params }: DashboardProps) {
       </div>
 
       {/* 3. Main Workspace */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <div className="lg:col-span-2 space-y-4 sm:space-y-6">
           <Card className="overflow-hidden">
-            <CardHeader className="p-4 pb-2 border-b flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-base font-semibold">
+            <CardHeader className="p-3 sm:p-4 pb-2 border-b flex flex-row items-center justify-between gap-2">
+              <div className="min-w-0">
+                <CardTitle className="text-sm sm:text-base font-semibold truncate">
                   Live Monitor Preview
                 </CardTitle>
-                <CardDescription className="text-xs">
+                <CardDescription className="text-xs truncate">
                   {formData.title || "ไม่มีหัวข้อสตรีม"}
                 </CardDescription>
               </div>
-              <Badge variant="outline" className="text-xs">
+              <Badge variant="outline" className="text-xs shrink-0">
                 {session?.status}
               </Badge>
             </CardHeader>
@@ -460,7 +450,7 @@ export default function DashboardPage({ params }: DashboardProps) {
             {/* กล้อง LiveKit Preview */}
             <div className="relative aspect-video w-full bg-zinc-950 flex items-center justify-center overflow-hidden">
               {isTokenLoading ? (
-                <div className="text-center text-muted-foreground space-y-2">
+                <div className="text-center text-muted-foreground space-y-2 p-4">
                   <Loader2 className="size-8 mx-auto animate-spin text-primary" />
                   <p className="text-sm font-medium">
                     กำลังเตรียมห้องถ่ายทอดสด...
@@ -491,20 +481,16 @@ export default function DashboardPage({ params }: DashboardProps) {
                     {tokenError || "ไม่สามารถเชื่อมต่อไปยัง Media Server ได้"}
                   </p>
                   <p className="text-xs text-muted-foreground max-w-sm mx-auto">
-                    ตรวจสอบว่าล็อกอินแอดมินอยู่ และ LiveKit ที่{" "}
-                    <span className="font-mono">
-                      {process.env.NEXT_PUBLIC_LIVEKIT_URL || "-"}
-                    </span>{" "}
-                    เข้าถึงได้
+                    ตรวจสอบว่าล็อกอินแอดมินอยู่และเซิร์ฟเวอร์เปิดใช้งานอยู่
                   </p>
                 </div>
               )}
             </div>
 
             {/* Stream Key Helper */}
-            <CardContent className="p-4 bg-muted/20 border-t space-y-3">
+            <CardContent className="p-3 sm:p-4 bg-muted/20 border-t space-y-3">
               <div className="flex items-center gap-2 text-xs font-semibold text-muted-foreground">
-                <Key className="size-3.5" /> ข้อมูลสำหรับการสตรีมภายนอก (OBS /
+                <Key className="size-3.5 shrink-0" /> ข้อมูลสตรีมภายนอก (OBS /
                 vMix)
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -573,12 +559,12 @@ export default function DashboardPage({ params }: DashboardProps) {
                 value="settings"
                 className="gap-1.5 text-xs text-[#333333]!"
               >
-                <Settings className="size-3.5" /> ตั้งค่าห้อง & OG
+                <Settings className="size-3.5" /> ตั้งค่า & OG
               </TabsTrigger>
             </TabsList>
 
             <TabsContent value="chat" className="flex-1 mt-2">
-              <Card className="h-[650px] flex flex-col">
+              <Card className="h-[550px] lg:h-[620px] flex flex-col">
                 <CardHeader className="p-3 border-b">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-semibold">
@@ -594,8 +580,8 @@ export default function DashboardPage({ params }: DashboardProps) {
                 </CardHeader>
 
                 <CardContent className="flex-1 p-0 overflow-hidden">
-                  <ScrollArea className="h-[510px] px-3 pb-10">
-                    <div className="space-y-3">
+                  <ScrollArea className="h-[420px] lg:h-[480px] px-3 pb-10">
+                    <div className="space-y-3 py-2">
                       {messages.length === 0 ? (
                         <div className="text-center text-xs text-muted-foreground py-10">
                           ยังไม่มีข้อความส่งเข้ามาในห้องไลฟ์
@@ -613,10 +599,10 @@ export default function DashboardPage({ params }: DashboardProps) {
                               }`}
                             >
                               <div className="flex items-center justify-between">
-                                <span className="font-semibold text-foreground">
+                                <span className="font-semibold text-foreground truncate max-w-[70%]">
                                   {item.senderName}
                                 </span>
-                                <span className="text-[10px] text-muted-foreground">
+                                <span className="text-[10px] text-muted-foreground shrink-0">
                                   {item.createdAt
                                     ? new Date(
                                         item.createdAt,
@@ -638,7 +624,7 @@ export default function DashboardPage({ params }: DashboardProps) {
                   </ScrollArea>
                 </CardContent>
 
-                <div className="p-3 border-t bg-muted/20">
+                <div className="p-3 border-t bg-muted/20 mt-auto">
                   <form onSubmit={handleSendAdminReply} className="flex gap-2">
                     <Input
                       value={quickReply}
@@ -662,7 +648,7 @@ export default function DashboardPage({ params }: DashboardProps) {
             </TabsContent>
 
             <TabsContent value="settings" className="flex-1 mt-2">
-              <Card className="h-[650px] flex flex-col">
+              <Card className="h-[550px] lg:h-[620px] flex flex-col">
                 <CardHeader className="p-3 border-b">
                   <CardTitle className="text-sm font-semibold">
                     ตั้งค่าห้องไลฟ์ & Open Graph
@@ -672,7 +658,7 @@ export default function DashboardPage({ params }: DashboardProps) {
                   </CardDescription>
                 </CardHeader>
 
-                <CardContent className="p-4 flex-1 overflow-y-auto">
+                <CardContent className="p-3 sm:p-4 flex-1 overflow-y-auto">
                   <form
                     id="settings-form"
                     onSubmit={handleSaveSettings}
@@ -817,11 +803,10 @@ export default function DashboardPage({ params }: DashboardProps) {
                   </form>
                 </CardContent>
 
-                <div className="p-3 border-t bg-muted/20">
+                <div className="p-3 border-t bg-muted/20 mt-auto">
                   <Button
                     type="submit"
                     form="settings-form"
-                    size="xl"
                     disabled={updateSessionMutation.isPending}
                     className="w-full gap-2 text-xs h-9"
                   >
