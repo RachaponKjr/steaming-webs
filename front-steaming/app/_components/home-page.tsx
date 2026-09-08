@@ -88,6 +88,7 @@ function LiveStreamPlayer() {
         trackRef={hostVideoTrack}
         className="w-full h-full object-cover lg:object-contain max-h-screen -scale-x-100"
       />
+      {/* เสียงจากฝั่ง Host จะยังคงเล่นออกลำโพงปกติโดยไม่ต้องขอสิทธิ์ไมโครโฟนผู้ชม */}
       {hostAudioTrack && <AudioTrack trackRef={hostAudioTrack} />}
     </div>
   );
@@ -396,7 +397,7 @@ export default function HomePage({ liveId }: { liveId: string }) {
             serverUrl={wsUrl}
             connect={true}
             video={false}
-            audio={true}
+            audio={false}
             data-lk-theme="default"
             className="w-full h-full"
             onError={(err) => setRoomError(err.message)}

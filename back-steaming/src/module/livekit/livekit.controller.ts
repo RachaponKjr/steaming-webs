@@ -34,7 +34,7 @@ export class LivekitController {
     // ป้องกัน identity ชนกันจนโดนเตะออกจากห้อง (LiveKit ยอมให้ identity ซ้ำไม่ได้)
     const uniqueIdentity = `${identity}#${Math.random().toString(36).substring(2, 7)}`;
 
-    return this.livekitService.generateToken(room, uniqueIdentity, isHost);
+    return this.livekitService.generateToken(room, uniqueIdentity, false);
   }
 
   /**
