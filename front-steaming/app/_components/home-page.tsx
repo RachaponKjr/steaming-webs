@@ -397,7 +397,7 @@ export default function HomePage({ liveId }: { liveId: string }) {
             serverUrl={wsUrl}
             connect={true}
             video={false}
-            audio={false}
+            audio={true}
             data-lk-theme="default"
             className="w-full h-full"
             onError={(err) => setRoomError(err.message)}
