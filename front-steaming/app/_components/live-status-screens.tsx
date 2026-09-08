@@ -102,7 +102,7 @@ export function NoLiveTodayScreen() {
             </Link>
           }
           size={"xl"}
-          className="w-full bg-[#1877F2] hover:bg-[#166fe5] text-white font-medium rounded-md shadow-2xs gap-2 transition-transform active:scale-[0.98]"
+          className="w-full bg-[#1877F2] hover:bg-[#166fe5] text-white font-medium rounded-md shadow-2xs gap-2 flex justify-center transition-transform active:scale-[0.98]"
         />
 
         {/* Phone Contact */}
@@ -195,7 +195,7 @@ export function WaitingLiveScreen({ title }: { title?: string }) {
             </Link>
           }
           size={"xl"}
-          className="w-full  bg-[#1877F2] hover:bg-[#166fe5] text-white font-medium rounded-md shadow-2xs gap-2 transition-transform active:scale-[0.98]"
+          className="w-full  bg-[#1877F2] hover:bg-[#166fe5]  flex justify-center text-white font-medium rounded-md shadow-2xs gap-2 transition-transform active:scale-[0.98]"
         />
 
         {/* Phone Contact */}
@@ -282,7 +282,7 @@ export function LiveEndedScreen({ title }: { title?: string }) {
             </Link>
           }
           size={"xl"}
-          className="w-full bg-[#1877F2] hover:bg-[#166fe5] text-white font-medium rounded-md shadow-2xs gap-2 transition-transform active:scale-[0.98]"
+          className="w-full bg-[#1877F2]  flex justify-center hover:bg-[#166fe5] text-white font-medium rounded-md shadow-2xs gap-2 transition-transform active:scale-[0.98]"
         />
 
         {/* Phone Contact */}
