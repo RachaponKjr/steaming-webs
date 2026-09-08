@@ -81,7 +81,7 @@ export function NoLiveTodayScreen() {
       </div>
 
       {/* Contact Channels */}
-      <div className="w-full max-w-md grid grid-cols-2 gap-2.5">
+      <div className="w-full max-w-md grid grid-cols-1 lg:grid-cols-2 gap-2.5">
         {/* Facebook Fanpage */}
         <Button
           render={
@@ -174,7 +174,7 @@ export function WaitingLiveScreen({ title }: { title?: string }) {
       </div>
 
       {/* Contact Channels */}
-      <div className="w-full max-w-md grid grid-cols-2 gap-2.5">
+      <div className="w-full max-w-md grid grid-cols-1 lg:grid-cols-2 gap-2.5">
         {/* Facebook */}
         <Button
           render={
@@ -261,7 +261,7 @@ export function LiveEndedScreen({ title }: { title?: string }) {
       </div>
 
       {/* Contact Channels */}
-      <div className="w-full max-w-md grid grid-cols-2 gap-2.5">
+      <div className="w-full max-w-md grid grid-cols-1 lg:grid-cols-2 gap-2.5">
         {/* Facebook */}
         <Button
           render={
