@@ -5,7 +5,7 @@ import { roomService } from "@/services/room.service";
 const defaultTitle = "ประมูลลูกไก่ เริ่มต้น10บ. ซุ้ม นักรบหลังกำแพง";
 const defaultDesc =
   "ร่วมประมูลลูกไก่สายพันธุ์ดีเริ่มต้นเพียง 10 บาท จากซุ้มนักรบหลังกำแพง อัปเดตราคาล่าสุดและร่วมสนุกประมูลลูกไก่ชนคุณภาพได้ที่นี่";
-const defaultImage = "/images/saimon.png";
+const defaultImage = "https://zimonds.com/images/saimon.png";
 const siteUrl = "https://api.zimonds.com";
 
 // 1. ทำให้ generateMetadata มีความปลอดภัยมากขึ้น ป้องกันหน้าพังถ้า API ล่ม
@@ -41,7 +41,7 @@ export async function generateMetadata(): Promise<Metadata> {
         url: siteUrl,
         title,
         description,
-        siteName: "ไซม่อนซีฟู้ด",
+        siteName: "ซุ้ม นักรบหลังกำแพง",
         images: [{ url: ogImage, width: 1200, height: 630, alt: title }],
       },
       twitter: {

@@ -17,32 +17,25 @@ const geistMono = Geist_Mono({
 const siteConfig = {
   name: "ประมูลลูกไก่ เริ่มต้น10บ.",
   shortName: "ซุ้ม นักรบหลังกำแพง",
-  description:
-    "อาหารทะเลสด-แช่แข็ง วัตถุดิบ ชาบู สุกี้ หม่าล่า หมูกระทะ คุณภาพพรีเมียม ส่งฟรีทั่วประเทศ มีบริการเก็บเงินปลายทาง พร้อมรับประกันสินค้าเคลมได้ทุกกรณี",
-  url: "https://zimonds.com",
-  ogImage: "/images/saimon.jpg",
+  description: "ประมูลลูกไก่ เริ่มต้น10บ.",
+  url: "https://api.zimonds.com",
+  ogImage: "https://zimonds.com/images/saimon.png",
 };
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.shortName} | อาหารทะเลสด แช่แข็ง ส่งฟรีทั่วประเทศ`,
+    default: `${siteConfig.shortName} | ซุ้ม นักรบหลังกำแพง`,
     template: `%s | ${siteConfig.shortName}`,
   },
   description: siteConfig.description,
   keywords: [
-    "ไซม่อนซีฟู้ด",
-    "อาหารทะเลสด",
-    "อาหารทะเลแช่แข็ง",
-    "วัตถุดิบชาบู",
-    "วัตถุดิบหมูกระทะ",
-    "สุกี้",
-    "หม่าล่า",
-    "ซีฟู้ดเดลิเวอรี่",
-    "เก็บเงินปลายทาง",
-    "ส่งฟรีทั่วประเทศ",
-    "CF อาหารทะเล",
-    "ไลฟ์สดอาหารทะเล",
+    "ประมูลลูกไก่",
+    "ลูกไก่ชน",
+    "ซุ้มนักรบหลังกำแพง",
+    "ประมูลไก่ชน",
+    "ลูกไก่ราคาถูก",
+    "ซุ้มไก่ชน",
   ],
   authors: [{ name: siteConfig.shortName }],
   creator: siteConfig.shortName,
@@ -66,7 +59,7 @@ export const metadata: Metadata = {
         url: siteConfig.ogImage,
         width: 1200,
         height: 630,
-        alt: "ไซม่อนซีฟู้ด อาหารทะเลสด แช่แข็ง คุณภาพพรีเมียม",
+        alt: "ร่วมประมูลลูกไก่สายพันธุ์ดีเริ่มต้นเพียง 10 บาท จากซุ้มนักรบหลังกำแพง อัปเดตราคาล่าสุดและร่วมสนุกประมูลลูกไก่ชนคุณภาพได้ที่นี่",
       },
     ],
   },
@@ -74,7 +67,7 @@ export const metadata: Metadata = {
   // พรีวิวบน X (Twitter)
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.shortName} | อาหารทะเลสด-แช่แข็ง วัตถุดิบชาบู หมูกระทะ`,
+    title: `${siteConfig.shortName} | ประมูลลูกไก่ เริ่มต้น10บ.`,
     description: siteConfig.description,
     images: [siteConfig.ogImage],
   },
