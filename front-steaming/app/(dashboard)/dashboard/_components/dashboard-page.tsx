@@ -34,6 +34,7 @@ import {
   Key,
   Copy,
   Check,
+  Share2,
   StopCircle,
   PlayCircle,
   Clock,
@@ -74,7 +75,7 @@ interface DashboardProps {
 }
 
 // ----------------------------------------------------------------------
-// Sub-component: กล้อง Host (WebRTC) พร้อมปุ่มสลับกล้องหน้า/หลัง
+// Sub-component: กล้อง Host (WebRTC)
 // ----------------------------------------------------------------------
 function HostCameraPreview() {
   const [isMirrored, setIsMirrored] = useState(false);
@@ -278,7 +279,7 @@ export default function DashboardPage({ params }: DashboardProps) {
     sendMessageMutation.mutate({
       liveId,
       senderId: "admin_01",
-      senderName: "Admin",
+      senderName: "[Admin] ร้านค้า",
       message: quickReply.trim(),
     });
     setQuickReply("");
@@ -289,17 +290,17 @@ export default function DashboardPage({ params }: DashboardProps) {
       <div className="flex-1 flex items-center justify-center min-h-[60vh] p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>วันนี้ยังไม่มีห้องไลฟ์ประมูลลูกไก่</CardTitle>
+            <CardTitle>วันนี้ยังไม่มีห้องไลฟ์</CardTitle>
             <CardDescription>
               ระบบอนุญาตให้เปิดไลฟ์ได้ 1 ครั้งต่อ 1 วันเท่านั้น
-              กรอกหัวข้อเพื่อเปิดห้องไลฟ์ประมูล
+              กรอกหัวข้อเพื่อเปิดห้องไลฟ์
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="space-y-1.5">
               <Label className="text-xs">ชื่อหัวข้อไลฟ์วันนี้</Label>
               <Input
-                placeholder="เช่น ประมูลลูกไก่ เริ่มต้น 10 บาท"
+                placeholder="เช่น มหกรรมลดราคาสินค้าประจำสัปดาห์"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
               />
@@ -339,7 +340,7 @@ export default function DashboardPage({ params }: DashboardProps) {
   }
 
   return (
-    <div className="flex-1 space-y-4 sm:space-y-6 p-3 sm:p-6 lg:p-8  mx-auto w-full overflow-x-hidden">
+    <div className="flex-1 space-y-4 sm:space-y-6 p-3 sm:p-6 lg:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden">
       {/* 1. Header Bar */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
@@ -371,7 +372,7 @@ export default function DashboardPage({ params }: DashboardProps) {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-          <ShareButton url="https://api.zimonds.com" title={session?.title} />
+          <ShareButton url="https://zimonds.com" title={session?.title} />
 
           {isStreaming ? (
             <Button
@@ -433,21 +434,16 @@ export default function DashboardPage({ params }: DashboardProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 sm:p-6 sm:pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium">
-              ยอดบิด / CF
+              คำสั่งซื้อ / CF
             </CardTitle>
             <ShoppingBag className="size-4 text-amber-500 shrink-0" />
           </CardHeader>
           <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
             <div className="text-xl sm:text-2xl font-bold">
-              {
-                messages.filter(
-                  (m) =>
-                    m.message?.startsWith("🛍️") || m.message?.includes("บิด"),
-                ).length
-              }
+              {messages.filter((m) => m.message?.startsWith("🛍️")).length}
             </div>
             <p className="text-[11px] sm:text-xs text-muted-foreground mt-1">
-              รายการประมูลสินค้า
+              แท็กสั่งซื้อสินค้า
             </p>
           </CardContent>
         </Card>
@@ -491,7 +487,7 @@ export default function DashboardPage({ params }: DashboardProps) {
               </Badge>
             </CardHeader>
 
-            {/* กล้อง LiveKit Preview พร้อมปุ่มสลับกล้อง */}
+            {/* กล้อง LiveKit Preview */}
             <div className="relative aspect-video w-full bg-zinc-950 flex items-center justify-center overflow-hidden">
               {isTokenLoading ? (
                 <div className="text-center text-muted-foreground space-y-2 p-4">
@@ -612,7 +608,7 @@ export default function DashboardPage({ params }: DashboardProps) {
                 <CardHeader className="p-3 border-b">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-semibold">
-                      กล่องข้อความประมูลสด
+                      กล่องข้อความสด
                     </CardTitle>
                     <Badge
                       variant="outline"
@@ -632,9 +628,7 @@ export default function DashboardPage({ params }: DashboardProps) {
                         </div>
                       ) : (
                         messages.map((item) => {
-                          const isOrder =
-                            item.message?.startsWith("🛍️") ||
-                            item.message?.includes("บิด");
+                          const isOrder = item.message?.startsWith("🛍️");
                           return (
                             <div
                               key={item.id}
@@ -675,7 +669,7 @@ export default function DashboardPage({ params }: DashboardProps) {
                     <Input
                       value={quickReply}
                       onChange={(e) => setQuickReply(e.target.value)}
-                      placeholder="ตอบกลับในฐานะซุ้ม..."
+                      placeholder="ตอบกลับในฐานะแอดมิน..."
                       className="h-9 text-xs"
                     />
                     <Button
@@ -720,7 +714,7 @@ export default function DashboardPage({ params }: DashboardProps) {
                           setFormData({ ...formData, title: e.target.value })
                         }
                         className="h-8 text-xs"
-                        placeholder="เช่น ประมูลลูกไก่ เริ่มต้น 10 บาท"
+                        placeholder="เช่น มหกรรมลดราคาสินค้าประจำสัปดาห์"
                       />
                     </div>
 
