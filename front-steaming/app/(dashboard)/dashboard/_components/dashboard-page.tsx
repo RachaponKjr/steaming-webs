@@ -34,7 +34,6 @@ import {
   Key,
   Copy,
   Check,
-  Share2,
   StopCircle,
   PlayCircle,
   Clock,
@@ -43,6 +42,7 @@ import {
   Tag,
   Loader2,
   Save,
+  SwitchCamera,
 } from "lucide-react";
 import { useLiveMessageStream, useSendMessage } from "@/hooks/useLiveMessage";
 import { useLiveChat } from "@/hooks/useLiveChat";
@@ -74,10 +74,11 @@ interface DashboardProps {
 }
 
 // ----------------------------------------------------------------------
-// Sub-component: กล้อง Host (WebRTC)
+// Sub-component: กล้อง Host (WebRTC) พร้อมปุ่มสลับกล้องหน้า/หลัง
 // ----------------------------------------------------------------------
 function HostCameraPreview() {
   const [isMirrored, setIsMirrored] = useState(false);
+  const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
   const { localParticipant } = useLocalParticipant();
   const tracks = useTracks([Track.Source.Camera], {
     onlySubscribed: false,
@@ -86,6 +87,32 @@ function HostCameraPreview() {
   const localCameraTrack = tracks.find(
     (t) => t.participant.identity === localParticipant.identity,
   );
+
+  // ฟังก์ชันสลับกล้องหน้า/หลัง (เปลี่ยน constraints ของ VideoTrack บน LiveKit)
+  const handleToggleCameraFacing = async () => {
+    const nextMode = facingMode === "user" ? "environment" : "user";
+    setFacingMode(nextMode);
+    // สลับโหมดกระจกอัตโนมัติหากใช้กล้องหลัง (กล้องหลังปกติไม่ควรกลับด้าน)
+    if (nextMode === "environment") {
+      setIsMirrored(false);
+    }
+
+    try {
+      if (localParticipant) {
+        const cameraPub = localParticipant.getTrackPublication(
+          Track.Source.Camera,
+        );
+        if (cameraPub && cameraPub.videoTrack) {
+          // รีสตาร์ทแทร็กกล้องด้วย facingMode ใหม่
+          await cameraPub.videoTrack.restartTrack({
+            facingMode: nextMode,
+          });
+        }
+      }
+    } catch (err) {
+      console.error("ไม่สามารถสลับกล้องได้:", err);
+    }
+  };
 
   return (
     <div className="relative w-full h-full bg-zinc-950 flex items-center justify-center">
@@ -103,6 +130,7 @@ function HostCameraPreview() {
         </div>
       )}
 
+      {/* ควบคุมกล้อง */}
       <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2 bg-zinc-900/90 backdrop-blur px-2.5 sm:px-3 py-1.5 rounded-full border border-zinc-700 shadow-lg z-10">
         <TrackToggle
           source={Track.Source.Microphone}
@@ -112,6 +140,17 @@ function HostCameraPreview() {
           source={Track.Source.Camera}
           className="rounded-full p-2 hover:bg-zinc-800 text-white! transition-colors"
         />
+        <button
+          type="button"
+          onClick={handleToggleCameraFacing}
+          title="สลับกล้องหน้า / หลัง"
+          className="flex items-center gap-1 text-xs text-white px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full hover:bg-zinc-800 border border-zinc-700 transition-colors"
+        >
+          <SwitchCamera className="size-3.5" />
+          <span className="hidden sm:inline">
+            {facingMode === "user" ? "กล้องหน้า" : "กล้องหลัง"}
+          </span>
+        </button>
         <button
           type="button"
           onClick={() => setIsMirrored((prev) => !prev)}
@@ -239,7 +278,7 @@ export default function DashboardPage({ params }: DashboardProps) {
     sendMessageMutation.mutate({
       liveId,
       senderId: "admin_01",
-      senderName: "[Admin] ร้านค้า",
+      senderName: "Admin",
       message: quickReply.trim(),
     });
     setQuickReply("");
@@ -250,17 +289,17 @@ export default function DashboardPage({ params }: DashboardProps) {
       <div className="flex-1 flex items-center justify-center min-h-[60vh] p-4">
         <Card className="w-full max-w-md">
           <CardHeader>
-            <CardTitle>วันนี้ยังไม่มีห้องไลฟ์</CardTitle>
+            <CardTitle>วันนี้ยังไม่มีห้องไลฟ์ประมูลลูกไก่</CardTitle>
             <CardDescription>
               ระบบอนุญาตให้เปิดไลฟ์ได้ 1 ครั้งต่อ 1 วันเท่านั้น
-              กรอกหัวข้อเพื่อเปิดห้องไลฟ์
+              กรอกหัวข้อเพื่อเปิดห้องไลฟ์ประมูล
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="space-y-1.5">
               <Label className="text-xs">ชื่อหัวข้อไลฟ์วันนี้</Label>
               <Input
-                placeholder="เช่น มหกรรมลดราคาสินค้าประจำสัปดาห์"
+                placeholder="เช่น ประมูลลูกไก่ เริ่มต้น 10 บาท"
                 value={newTitle}
                 onChange={(e) => setNewTitle(e.target.value)}
               />
@@ -300,7 +339,7 @@ export default function DashboardPage({ params }: DashboardProps) {
   }
 
   return (
-    <div className="flex-1 space-y-4 sm:space-y-6 p-3 sm:p-6 lg:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden">
+    <div className="flex-1 space-y-4 sm:space-y-6 p-3 sm:p-6 lg:p-8  mx-auto w-full overflow-x-hidden">
       {/* 1. Header Bar */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
@@ -332,7 +371,7 @@ export default function DashboardPage({ params }: DashboardProps) {
         </div>
 
         <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap">
-          <ShareButton url="https://zimonds.com" title={session?.title} />
+          <ShareButton url="https://api.zimonds.com" title={session?.title} />
 
           {isStreaming ? (
             <Button
@@ -394,16 +433,21 @@ export default function DashboardPage({ params }: DashboardProps) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between pb-2 p-3 sm:p-6 sm:pb-2">
             <CardTitle className="text-xs sm:text-sm font-medium">
-              คำสั่งซื้อ / CF
+              ยอดบิด / CF
             </CardTitle>
             <ShoppingBag className="size-4 text-amber-500 shrink-0" />
           </CardHeader>
           <CardContent className="p-3 pt-0 sm:p-6 sm:pt-0">
             <div className="text-xl sm:text-2xl font-bold">
-              {messages.filter((m) => m.message?.startsWith("🛍️")).length}
+              {
+                messages.filter(
+                  (m) =>
+                    m.message?.startsWith("🛍️") || m.message?.includes("บิด"),
+                ).length
+              }
             </div>
             <p className="text-[11px] sm:text-xs text-muted-foreground mt-1">
-              แท็กสั่งซื้อสินค้า
+              รายการประมูลสินค้า
             </p>
           </CardContent>
         </Card>
@@ -447,7 +491,7 @@ export default function DashboardPage({ params }: DashboardProps) {
               </Badge>
             </CardHeader>
 
-            {/* กล้อง LiveKit Preview */}
+            {/* กล้อง LiveKit Preview พร้อมปุ่มสลับกล้อง */}
             <div className="relative aspect-video w-full bg-zinc-950 flex items-center justify-center overflow-hidden">
               {isTokenLoading ? (
                 <div className="text-center text-muted-foreground space-y-2 p-4">
@@ -568,7 +612,7 @@ export default function DashboardPage({ params }: DashboardProps) {
                 <CardHeader className="p-3 border-b">
                   <div className="flex items-center justify-between">
                     <CardTitle className="text-sm font-semibold">
-                      กล่องข้อความสด
+                      กล่องข้อความประมูลสด
                     </CardTitle>
                     <Badge
                       variant="outline"
@@ -588,7 +632,9 @@ export default function DashboardPage({ params }: DashboardProps) {
                         </div>
                       ) : (
                         messages.map((item) => {
-                          const isOrder = item.message?.startsWith("🛍️");
+                          const isOrder =
+                            item.message?.startsWith("🛍️") ||
+                            item.message?.includes("บิด");
                           return (
                             <div
                               key={item.id}
@@ -629,7 +675,7 @@ export default function DashboardPage({ params }: DashboardProps) {
                     <Input
                       value={quickReply}
                       onChange={(e) => setQuickReply(e.target.value)}
-                      placeholder="ตอบกลับในฐานะแอดมิน..."
+                      placeholder="ตอบกลับในฐานะซุ้ม..."
                       className="h-9 text-xs"
                     />
                     <Button
@@ -674,7 +720,7 @@ export default function DashboardPage({ params }: DashboardProps) {
                           setFormData({ ...formData, title: e.target.value })
                         }
                         className="h-8 text-xs"
-                        placeholder="เช่น มหกรรมลดราคาสินค้าประจำสัปดาห์"
+                        placeholder="เช่น ประมูลลูกไก่ เริ่มต้น 10 บาท"
                       />
                     </div>
 

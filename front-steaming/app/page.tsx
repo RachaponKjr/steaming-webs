@@ -6,7 +6,7 @@ const defaultTitle = "ประมูลลูกไก่ เริ่มต้
 const defaultDesc =
   "ร่วมประมูลลูกไก่สายพันธุ์ดีเริ่มต้นเพียง 10 บาท จากซุ้มนักรบหลังกำแพง อัปเดตราคาล่าสุดและร่วมสนุกประมูลลูกไก่ชนคุณภาพได้ที่นี่";
 const defaultImage = "https://zimonds.com/images/saimon.png";
-const siteUrl = "https://api.zimonds.com";
+const siteUrl = "https://zimonds.com";
 
 // 1. ทำให้ generateMetadata มีความปลอดภัยมากขึ้น ป้องกันหน้าพังถ้า API ล่ม
 export async function generateMetadata(): Promise<Metadata> {

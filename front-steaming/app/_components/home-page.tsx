@@ -26,7 +26,8 @@ import {
   CheckCircle2,
   RotateCw,
   Minimize2,
-  BirdIcon,
+  Heart,
+  Flame,
 } from "lucide-react";
 import { useLiveChat } from "@/hooks/useLiveChat";
 import { useLiveMessageStream, useSendMessage } from "@/hooks/useLiveMessage";
@@ -44,6 +45,7 @@ import {
 } from "@livekit/components-react";
 import { Track } from "livekit-client";
 import "@livekit/components-styles";
+import Image from "next/image";
 
 const STORAGE_NAME_KEY = "guest_customer_name";
 
@@ -60,6 +62,13 @@ const formatTime = (dateStr?: string) => {
     return "";
   }
 };
+
+interface FloatingReaction {
+  id: number;
+  Icon: React.ElementType;
+  color: string;
+  left: number; // percentage
+}
 
 function LiveStreamPlayer() {
   const videoTracks = useTracks(
@@ -90,7 +99,6 @@ function LiveStreamPlayer() {
         trackRef={hostVideoTrack}
         className="w-full h-full object-cover lg:object-contain max-h-screen -scale-x-100"
       />
-      {/* เสียงจากฝั่ง Host จะยังคงเล่นออกลำโพงปกติโดยไม่ต้องขอสิทธิ์ไมโครโฟนผู้ชม */}
       {hostAudioTrack && <AudioTrack trackRef={hostAudioTrack} />}
     </div>
   );
@@ -104,6 +112,10 @@ export default function HomePage({ liveId }: { liveId: string }) {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [roomError, setRoomError] = useState<string>("");
   const [chatInput, setChatInput] = useState<string>("");
+  const [floatingReactions, setFloatingReactions] = useState<
+    FloatingReaction[]
+  >([]);
+
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const mobileChatScrollRef = useRef<HTMLDivElement>(null);
   const adminMessagesEndRef = useRef<HTMLDivElement>(null);
@@ -212,26 +224,29 @@ export default function HomePage({ liveId }: { liveId: string }) {
     setChatInput("");
   };
 
-  const handleSendDm = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!dmInput.trim()) return;
+  const triggerFloatingReaction = (type: "heart" | "fire" | "sparkles") => {
+    const icons = {
+      heart: { Icon: Heart, color: "text-rose-500 fill-rose-500" },
+      fire: { Icon: Flame, color: "text-amber-500 fill-amber-500" },
+      sparkles: { Icon: Sparkles, color: "text-yellow-400 fill-yellow-400" },
+    };
 
-    sendToAdmin({
-      senderId: currentSenderId,
-      senderName: userName || "ลูกค้า",
-      content: dmInput.trim(),
-      senderType: "MEMBER",
-    });
-    setDmInput("");
-  };
+    const selected = icons[type];
+    const newReaction: FloatingReaction = {
+      id: Date.now() + Math.random(),
+      Icon: selected.Icon,
+      color: selected.color,
+      left: Math.floor(Math.random() * 60) + 20, // สุ่มตำแหน่งแนวนอน 20% - 80%
+    };
 
-  const handleQuickCf = (code: string) => {
-    sendToAdmin({
-      senderId: currentSenderId,
-      senderName: userName || "ลูกค้า",
-      content: `🛍️ สั่งซื้อสินค้า CF: ${code}`,
-      senderType: "MEMBER",
-    });
+    setFloatingReactions((prev) => [...prev, newReaction]);
+
+    // เอาออกหลังจาก animation เล่นจบ (ประมาณ 2 วินาที)
+    setTimeout(() => {
+      setFloatingReactions((prev) =>
+        prev.filter((r) => r.id !== newReaction.id),
+      );
+    }, 2000);
   };
 
   if (!isLoaded) {
@@ -249,6 +264,27 @@ export default function HomePage({ liveId }: { liveId: string }) {
       ref={containerRef}
       className="relative w-full h-dvh overflow-hidden bg-black flex"
     >
+      {/* CSS สำหรับเอฟเฟกต์ลอยขึ้น (Floating Animation) */}
+      <style jsx global>{`
+        @keyframes floatUp {
+          0% {
+            transform: translateY(0px) scale(0.6);
+            opacity: 0;
+          }
+          20% {
+            opacity: 1;
+            transform: translateY(-40px) scale(1.2);
+          }
+          100% {
+            transform: translateY(-280px) scale(1);
+            opacity: 0;
+          }
+        }
+        .animate-float-up {
+          animation: floatUp 2s ease-out forwards;
+        }
+      `}</style>
+
       {/* 1. Modal บังคับระบุชื่อ */}
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
         <DialogContent className="sm:max-w-md [&>button]:hidden bg-card border shadow-2xl">
@@ -287,6 +323,28 @@ export default function HomePage({ liveId }: { liveId: string }) {
 
       {/* 2. Main Live Video + TikTok Style Overlay (Mobile) */}
       <div className="relative flex-1 h-full bg-zinc-950 overflow-hidden flex items-center justify-center">
+        <div className="absolute top-20 left-4 flex flex-col justify-center items-center gap-2 ">
+          <Image
+            src="/qrcode.jpg"
+            alt="Live Background"
+            width={250}
+            height={250}
+            className="z-20 hidden md:block"
+          />
+          <span className="z-20 hidden md:block text-[#333333]">
+            ติดต่อสอบถาม
+          </span>
+        </div>
+        <div className="flex flex-col justify-center items-center gap-2 absolute top-18 left-3 ">
+          <Image
+            src="/qrcode.jpg"
+            alt="Live Background"
+            width={120}
+            height={120}
+            className="z-20 md:hidden"
+          />
+          <span className="z-20 md:hidden text-[#333333]">ติดต่อสอบถาม</span>
+        </div>
         {/* Header Overlay Bar */}
         <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
           <div className="flex items-center gap-2 pointer-events-auto">
@@ -370,26 +428,55 @@ export default function HomePage({ liveId }: { liveId: string }) {
           </div>
 
           {/* แถบพิมพ์ข้อความสไตล์ TikTok ติดขอบจอล่าง */}
-          <form
-            onSubmit={handleSendMessage}
-            className="flex gap-2 pointer-events-auto items-center"
-          >
-            <Input
-              value={chatInput}
-              onChange={(e) => setChatInput(e.target.value)}
-              placeholder="แสดงความคิดเห็น..."
-              disabled={!isConnected}
-              className="flex-1 rounded-full h-10 text-xs bg-black/60 border-white/20 text-white placeholder:text-zinc-400 backdrop-blur-md focus-visible:ring-blue-500"
-            />
+          <div className="flex gap-2 pointer-events-auto items-center">
+            <form onSubmit={handleSendMessage} className="flex-1 flex gap-2">
+              <Input
+                value={chatInput}
+                onChange={(e) => setChatInput(e.target.value)}
+                placeholder="แสดงความคิดเห็น..."
+                disabled={!isConnected}
+                className="flex-1 rounded-full h-10 text-xs bg-black/60 border-white/20 text-white placeholder:text-zinc-400 backdrop-blur-md focus-visible:ring-blue-500"
+              />
+              <Button
+                type="submit"
+                size="icon"
+                disabled={!chatInput.trim() || !isConnected}
+                className="rounded-full size-10 bg-blue-600 hover:bg-blue-500 shrink-0 shadow-lg"
+              >
+                <SendHorizontal className="size-4 text-white" />
+              </Button>
+            </form>
+
+            {/* ปุ่มกดส่งไอคอนลอยๆ ด้านขวาช่องพิมพ์ */}
             <Button
-              type="submit"
+              type="button"
               size="icon"
-              disabled={!chatInput.trim() || !isConnected}
-              className="rounded-full size-10 bg-blue-600 hover:bg-blue-500 shrink-0 shadow-lg"
+              variant="secondary"
+              onClick={() => triggerFloatingReaction("heart")}
+              className="rounded-full size-10 bg-black/60 border border-white/20 hover:bg-rose-500/30 text-rose-500 backdrop-blur-md shrink-0 shadow-lg"
             >
-              <SendHorizontal className="size-4 text-white" />
+              <Heart className="size-4 fill-rose-500" />
             </Button>
-          </form>
+          </div>
+        </div>
+
+        {/* 🎈 ไอคอนลอยขึ้นจอ (Floating Reactions Container) */}
+        <div className="absolute right-4 bottom-24 lg:bottom-12 z-40 w-24 h-72 pointer-events-none overflow-hidden">
+          {floatingReactions.map((item) => {
+            const { id, Icon, color } = item;
+            return (
+              <div
+                key={id}
+                className="absolute bottom-4 left-1/2 -translate-x-1/2 animate-float-up pointer-events-none"
+              >
+                <div
+                  className={`p-2.5 rounded-full bg-black/40 backdrop-blur-md border border-white/10 shadow-xl ${color}`}
+                >
+                  <Icon className="size-6" />
+                </div>
+              </div>
+            );
+          })}
         </div>
 
         {/* Video Player */}
@@ -434,17 +521,6 @@ export default function HomePage({ liveId }: { liveId: string }) {
           defaultValue="livechat"
           className="flex-1 flex flex-col overflow-hidden"
         >
-          {/* <div className="p-3.5 border-b border-zinc-800 bg-zinc-900/40">
-            <TabsList className="grid grid-cols-2 w-full bg-zinc-900 ">
-              <TabsTrigger value="livechat" className="text-xs">
-                แชตสด ({messages.length})
-              </TabsTrigger>
-              <TabsTrigger value="admin" className="text-xs">
-                สั่งซื้อ / ติดต่อแอดมิน
-              </TabsTrigger>
-            </TabsList>
-          </div> */}
-
           <TabsContent
             value="livechat"
             className="flex-1 flex flex-col overflow-hidden m-0"
@@ -489,105 +565,58 @@ export default function HomePage({ liveId }: { liveId: string }) {
               <div ref={messagesEndRef} />
             </div>
 
-            <form
-              onSubmit={handleSendMessage}
-              className="p-3.5 border-t border-zinc-800 bg-zinc-900/50 flex gap-2"
-            >
-              <Input
-                value={chatInput}
-                onChange={(e) => setChatInput(e.target.value)}
-                placeholder={
-                  isConnected ? "พิมพ์ข้อความในไลฟ์..." : "กำลังเชื่อมต่อ..."
-                }
-                disabled={!isConnected}
-                className="flex-1 rounded-xl h-10 text-xs bg-zinc-950 border-zinc-800 text-zinc-100"
-              />
-              <Button
-                type="submit"
-                size="icon"
-                disabled={!chatInput.trim() || !isConnected}
-                className="rounded-xl size-10 bg-blue-600 hover:bg-blue-500"
-              >
-                <SendHorizontal className="size-4" />
-              </Button>
-            </form>
-          </TabsContent>
+            {/* แถบส่งข้อความ + ปุ่มกดส่งไอคอนลอยฝั่ง Desktop */}
+            <div className="p-3.5 border-t border-zinc-800 bg-zinc-900/50 flex flex-col gap-2">
+              <div className="flex items-center justify-around px-2 py-1 bg-zinc-950 rounded-xl border border-zinc-800">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => triggerFloatingReaction("heart")}
+                  className="text-rose-500 hover:text-rose-400 hover:bg-rose-500/10 gap-1.5 text-xs h-8"
+                >
+                  <Heart className="size-4 fill-rose-500" /> เลิฟๆ
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => triggerFloatingReaction("fire")}
+                  className="text-amber-500 hover:text-amber-400 hover:bg-amber-500/10 gap-1.5 text-xs h-8"
+                >
+                  <Flame className="size-4 fill-amber-500" /> ไฟลุก
+                </Button>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => triggerFloatingReaction("sparkles")}
+                  className="text-yellow-400 hover:text-yellow-300 hover:bg-yellow-400/10 gap-1.5 text-xs h-8"
+                >
+                  <Sparkles className="size-4 fill-yellow-400" /> สวยงาม
+                </Button>
+              </div>
 
-          <TabsContent
-            value="admin"
-            className="flex-1 flex flex-col overflow-hidden m-0"
-          >
-            <div className="flex-1 overflow-y-auto p-4 space-y-3">
-              {isLoadingAdminHistory ? (
-                <div className="text-center text-xs text-zinc-500 py-10">
-                  กำลังโหลดประวัติ...
-                </div>
-              ) : adminHistory.length === 0 ? (
-                <div className="text-center text-xs text-zinc-500 py-10 space-y-1">
-                  <Headphones className="size-6 mx-auto text-zinc-600" />
-                  <p>ยังไม่มีการส่งข้อความถึงแอดมิน</p>
-                  <p className="text-[11px] text-zinc-600">
-                    สามารถสั่งซื้อหรือสอบถามทางร้านได้โดยตรง
-                  </p>
-                </div>
-              ) : (
-                adminHistory.map((item) => (
-                  <div
-                    key={item.id}
-                    className="p-3 rounded-xl border border-zinc-800 bg-zinc-900 text-xs space-y-1"
-                  >
-                    <div className="flex items-center justify-between">
-                      <span className="font-semibold text-emerald-400">
-                        ส่งถึงแอดมิน
-                      </span>
-                      <div className="flex items-center gap-1.5">
-                        {item.readed ? (
-                          <span className="text-[10px] text-emerald-400 flex items-center gap-0.5">
-                            <CheckCircle2 className="size-3" /> อ่านแล้ว
-                          </span>
-                        ) : (
-                          <span className="text-[10px] text-amber-400">
-                            รอตรวจ
-                          </span>
-                        )}
-                        <span className="text-[10px] text-zinc-500">
-                          {formatTime(item.createdAt)}
-                        </span>
-                      </div>
-                    </div>
-                    <p className="text-zinc-200 leading-relaxed whitespace-pre-wrap">
-                      {item.content}
-                    </p>
-                  </div>
-                ))
-              )}
-              <div ref={adminMessagesEndRef} />
-            </div>
-
-            <form
-              onSubmit={handleSendDm}
-              className="p-3.5 border-t border-zinc-800 bg-zinc-900/50 flex gap-2"
-            >
-              <Input
-                value={dmInput}
-                onChange={(e) => setDmInput(e.target.value)}
-                placeholder="ระบุรหัส CF, ที่อยู่, เบอร์โทร..."
-                disabled={isSendingToAdmin}
-                className="flex-1 rounded-xl h-10 text-xs bg-zinc-950 border-zinc-800 text-zinc-100"
-              />
-              <Button
-                type="submit"
-                size="icon"
-                disabled={!dmInput.trim() || isSendingToAdmin}
-                className="rounded-xl size-10 bg-emerald-600 hover:bg-emerald-500"
-              >
-                {isSendingToAdmin ? (
-                  <Loader2 className="size-4 animate-spin" />
-                ) : (
+              <form onSubmit={handleSendMessage} className="flex gap-2">
+                <Input
+                  value={chatInput}
+                  onChange={(e) => setChatInput(e.target.value)}
+                  placeholder={
+                    isConnected ? "พิมพ์ข้อความในไลฟ์..." : "กำลังเชื่อมต่อ..."
+                  }
+                  disabled={!isConnected}
+                  className="flex-1 rounded-xl h-10 text-xs bg-zinc-950 border-zinc-800 text-zinc-100"
+                />
+                <Button
+                  type="submit"
+                  size="icon"
+                  disabled={!chatInput.trim() || !isConnected}
+                  className="rounded-xl size-10 bg-blue-600 hover:bg-blue-500"
+                >
                   <SendHorizontal className="size-4" />
-                )}
-              </Button>
-            </form>
+                </Button>
+              </form>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
