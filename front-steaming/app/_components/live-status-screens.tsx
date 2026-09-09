@@ -5,16 +5,14 @@ import {
   Radio,
   Clock,
   CalendarX,
-  Sparkles,
   Phone,
   ExternalLink,
   Truck,
   PackageCheck,
   ShieldCheck,
   Loader2,
+  Trophy,
 } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 
@@ -24,16 +22,10 @@ import Link from "next/link";
 export function NoLiveTodayScreen() {
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center px-4 sm:px-6 py-8 sm:py-12 text-center gap-4 text-zinc-900">
-      {/* Brand Profile Logo with Inactive Ring */}
+      {/* Icon Ring แทนรูปภาพ */}
       <div className="relative flex size-24 sm:size-28 items-center justify-center">
-        <div className="relative size-20 sm:size-24 overflow-hidden rounded-full border-2 border-zinc-200 shadow-md">
-          <Image
-            src={"/images/saimon.jpg"}
-            alt="โลโก้ร้านไซม่อนซีฟู้ด"
-            fill
-            priority
-            className="object-cover"
-          />
+        <div className="relative size-20 sm:size-24 flex items-center justify-center rounded-full bg-zinc-100 border-2 border-zinc-200 shadow-md text-zinc-700">
+          <Trophy className="size-10 sm:size-12" />
         </div>
         <div className="absolute bottom-1 right-1 flex size-6 sm:size-7 items-center justify-center rounded-full bg-zinc-100 border border-zinc-300 text-zinc-600 shadow-xs">
           <CalendarX className="size-3.5 sm:size-4" />
@@ -47,11 +39,11 @@ export function NoLiveTodayScreen() {
           ยังไม่มีการถ่ายทอดสด
         </div>
         <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-zinc-900">
-          วันนี้ยังไม่มีรอบไลฟ์สด
+          วันนี้ยังไม่มีรอบไลฟ์สดประมูลลูกไก่
         </h1>
         <p className="text-xs sm:text-sm text-zinc-500 leading-relaxed px-2">
-          ทางร้านยังไม่ได้เปิดห้องไลฟ์สำหรับวันนี้
-          สามารถติดตามตารางไลฟ์และสั่งซื้อสินค้าราคาพิเศษล่วงหน้าผ่านช่องทางด้านล่างได้เลย
+          ทางซุ้มยังไม่ได้เปิดห้องไลฟ์สำหรับวันนี้
+          สามารถติดตามตารางประมูลและสอบถามข้อมูลสายพันธุ์ลูกไก่ล่วงหน้าผ่านช่องทางด้านล่างได้เลย
         </p>
       </div>
 
@@ -60,23 +52,23 @@ export function NoLiveTodayScreen() {
         <div className="flex flex-col items-center p-2.5 rounded-xl bg-zinc-50 border border-zinc-100 text-center">
           <Truck className="size-4 text-blue-600 mb-1" />
           <span className="text-[11px] font-semibold text-zinc-800">
-            ส่งฟรี
+            จัดส่ง
           </span>
           <span className="text-[10px] text-zinc-400">ทั่วประเทศ</span>
         </div>
         <div className="flex flex-col items-center p-2.5 rounded-xl bg-zinc-50 border border-zinc-100 text-center">
           <PackageCheck className="size-4 text-emerald-600 mb-1" />
           <span className="text-[11px] font-semibold text-zinc-800">
-            ปลายทาง
+            ปลอดภัย
           </span>
-          <span className="text-[10px] text-zinc-400">เก็บเงินปลายทาง</span>
+          <span className="text-[10px] text-zinc-400">ส่งถึงมืออย่างดี</span>
         </div>
         <div className="flex flex-col items-center p-2.5 rounded-xl bg-zinc-50 border border-zinc-100 text-center">
           <ShieldCheck className="size-4 text-amber-600 mb-1" />
           <span className="text-[11px] font-semibold text-zinc-800">
-            รับประกัน
+            สายพันธุ์แท้
           </span>
-          <span className="text-[10px] text-zinc-400">เคลมได้ทุกกรณี</span>
+          <span className="text-[10px] text-zinc-400">การันตีคุณภาพ</span>
         </div>
       </div>
 
@@ -86,7 +78,7 @@ export function NoLiveTodayScreen() {
         <Button
           render={
             <Link
-              href="https://www.facebook.com/adminzimond"
+              href="https://web.facebook.com/profile.php?id=61594011634851"
               target="_blank"
               rel="noopener noreferrer"
               className="relative flex items-center justify-center w-full"
@@ -127,7 +119,7 @@ export function NoLiveTodayScreen() {
       <div className="flex items-center gap-1.5 text-xs text-zinc-400 pt-1 text-center px-4">
         <Clock className="size-3.5 text-zinc-400 shrink-0" />
         <span>
-          ระบบจะคอยตรวจสอบและรีเฟรชเข้าห้องไลฟ์ให้อัตโนมัติเมื่อร้านเริ่มเปิดไลฟ์
+          ระบบจะคอยตรวจสอบและรีเฟรชเข้าห้องไลฟ์ให้อัตโนมัติเมื่อซุ้มเริ่มเปิดไลฟ์ประมูล
         </span>
       </div>
     </div>
@@ -140,35 +132,29 @@ export function NoLiveTodayScreen() {
 export function WaitingLiveScreen({ title }: { title?: string }) {
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center px-4 sm:px-6 py-8 sm:py-10 text-center gap-5 text-zinc-900">
-      {/* Logo & Ping Animation */}
+      {/* Icon & Ping Animation */}
       <div className="relative flex size-36 sm:size-44 items-center justify-center">
         <span className="absolute inline-flex rounded-full bg-blue-500/10 animate-ping size-24 sm:size-30" />
-        <div className="relative size-32 sm:size-40 overflow-hidden rounded-full border-2 border-zinc-100 shadow-md">
-          <Image
-            src="/images/saimon.jpg"
-            alt="โลโก้ร้านไซม่อนซีฟู้ด"
-            fill
-            priority
-            className="object-cover"
-          />
+        <div className="relative size-32 sm:size-40 flex items-center justify-center rounded-full bg-zinc-100 border-2 border-zinc-200 shadow-md text-zinc-700">
+          <Trophy className="size-16 sm:size-20" />
         </div>
       </div>
 
       {/* Texts */}
       <div className="space-y-1.5 max-w-sm w-full">
         <h1 className="text-lg sm:text-xl font-bold text-zinc-900">
-          {title || "ไลฟ์กำลังจะเริ่มเร็วๆ นี้"}
+          {title || "ไลฟ์ประมูลลูกไก่กำลังจะเริ่มเร็วๆ นี้"}
         </h1>
         <p className="text-xs sm:text-sm text-zinc-500 leading-relaxed px-2">
-          ห้องไลฟ์เปิดพร้อมแล้ว รอทางร้านกดเริ่มถ่ายทอดสดสักครู่
-          ระบบจะพาเข้าสู่ไลฟ์ให้อัตโนมัติทันที
+          ห้องไลฟ์เปิดพร้อมแล้ว รอทางซุ้มกดเริ่มถ่ายทอดสดสักครู่
+          เตรียมตัวร่วมประมูลลูกไก่เริ่มต้น 10 บาทกันได้เลย
         </p>
       </div>
 
       {/* Status indicator */}
       <div className="flex items-center gap-2 text-xs font-medium text-zinc-600 bg-zinc-50 border border-zinc-200/80 px-3.5 py-1.5 rounded-full shadow-2xs">
         <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
-        กำลังรอสัญญาณจากทางร้าน...
+        กำลังรอสัญญาณจากซุ้ม...
       </div>
 
       {/* Divider */}
@@ -186,7 +172,7 @@ export function WaitingLiveScreen({ title }: { title?: string }) {
         <Button
           render={
             <Link
-              href="https://www.facebook.com/adminzimond"
+              href="https://web.facebook.com/profile.php?id=61594011634851"
               target="_blank"
               rel="noopener noreferrer"
               className="relative flex items-center justify-center w-full"
@@ -232,27 +218,21 @@ export function WaitingLiveScreen({ title }: { title?: string }) {
 export function LiveEndedScreen({ title }: { title?: string }) {
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center px-4 sm:px-6 py-8 sm:py-10 text-center gap-5 text-zinc-900">
-      {/* Logo */}
+      {/* Icon */}
       <div className="relative flex size-36 sm:size-44 items-center justify-center">
-        <div className="relative size-32 sm:size-40 overflow-hidden rounded-full border-2 border-zinc-100 shadow-md grayscale">
-          <Image
-            src="/images/saimon.jpg"
-            alt="โลโก้ร้านไซม่อนซีฟู้ด"
-            fill
-            priority
-            className="object-cover"
-          />
+        <div className="relative size-32 sm:size-40 flex items-center justify-center rounded-full bg-zinc-100 border-2 border-zinc-200 shadow-md text-zinc-400 grayscale">
+          <Trophy className="size-16 sm:size-20" />
         </div>
       </div>
 
       {/* Texts */}
       <div className="space-y-1.5 max-w-sm w-full">
         <h1 className="text-xl sm:text-2xl font-bold text-zinc-900">
-          {title ? `ไลฟ์ "${title}" จบลงแล้ว` : "ไลฟ์วันนี้จบลงแล้ว"}
+          {title ? `ไลฟ์ "${title}" จบลงแล้ว` : "รอบไลฟ์ประมูลวันนี้จบลงแล้ว"}
         </h1>
         <p className="text-sm sm:text-base text-zinc-500 leading-relaxed px-2">
-          ขอบคุณที่ติดตามชมนะครับ/คะ พบกันใหม่ในรอบไลฟ์ถัดไป
-          ติดตามช่องทางโซเชียลของร้านไว้ได้เลย
+          ขอบคุณพี่ๆ ทุกท่านที่มาร่วมประมูลลูกไก่ด้วยกันนะครับ/คะ
+          พบกันใหม่รอบไลฟ์หน้า ติดตามหน้าเพจไว้ได้เลย
         </p>
       </div>
 
@@ -277,7 +257,7 @@ export function LiveEndedScreen({ title }: { title?: string }) {
         <Button
           render={
             <Link
-              href="https://www.facebook.com/adminzimond"
+              href="https://web.facebook.com/profile.php?id=61594011634851"
               target="_blank"
               rel="noopener noreferrer"
               className="relative flex items-center justify-center w-full"
@@ -323,17 +303,11 @@ export function LiveEndedScreen({ title }: { title?: string }) {
 export function CheckingLiveScreen() {
   return (
     <div className="flex min-h-screen w-full flex-col items-center justify-center px-4 sm:px-6 text-center gap-4 text-zinc-900">
-      {/* Brand Logo with Soft Glow */}
+      {/* Icon with Soft Glow */}
       <div className="relative flex size-36 sm:size-44 items-center justify-center">
         <span className="absolute inline-flex rounded-full bg-blue-500/10 animate-ping size-24 sm:size-30" />
-        <div className="relative size-32 sm:size-40 overflow-hidden rounded-full border-2 border-zinc-100 shadow-md">
-          <Image
-            src="/images/saimon.jpg"
-            alt="โลโก้ร้านไซม่อนซีฟู้ด"
-            fill
-            priority
-            className="object-cover"
-          />
+        <div className="relative size-32 sm:size-40 flex items-center justify-center rounded-full bg-zinc-100 border-2 border-zinc-200 shadow-md text-zinc-700">
+          <Trophy className="size-16 sm:size-20" />
         </div>
       </div>
 
@@ -341,7 +315,7 @@ export function CheckingLiveScreen() {
       <div className="space-y-2 max-w-xs w-full">
         <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full text-xs font-medium bg-zinc-50 border border-zinc-200/80 text-zinc-700 shadow-2xs">
           <Loader2 className="size-3.5 animate-spin text-blue-600" />
-          <span>กำลังตรวจสอบสัญญาณไลฟ์สด...</span>
+          <span>กำลังตรวจสอบสัญญาณไลฟ์ประมูล...</span>
         </div>
         <p className="text-xs text-zinc-400">
           กรุณารอสักครู่ ระบบกำลังค้นหาห้องไลฟ์ประจำวัน
