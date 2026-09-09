@@ -330,7 +330,7 @@ export default function HomePage({ liveId }: { liveId: string }) {
             alt="Live Background"
             width={200}
             height={200}
-            className="z-20 shadow-md rounded-lg"
+            className="z-20 shadow-md"
           />
           <span className="z-20 text-xs text-[#333333] font-medium bg-white/80 px-2 py-0.5 rounded">
             ติดต่อสอบถาม
@@ -342,9 +342,9 @@ export default function HomePage({ liveId }: { liveId: string }) {
           <Image
             src="/qrcode.jpg"
             alt="Live Background"
-            width={64}
-            height={64}
-            className="z-20 shadow-sm rounded-md"
+            width={120}
+            height={120}
+            className="z-20 shadow-sm"
           />
           <span className="z-20 text-[10px] text-[#333333] font-medium bg-white/80 px-1.5 py-0.2 rounded">
             ติดต่อสอบถาม
@@ -500,7 +500,10 @@ export default function HomePage({ liveId }: { liveId: string }) {
             <LiveStreamPlayer />
 
             <RoomAudioRenderer />
-            <StartAudio label="คลิกเพื่อเปิดเสียงไลฟ์สด" />
+            <StartAudio
+              label="🔊 คลิกเพื่อเปิดเสียงไลฟ์สด"
+              className="absolute inset-0 m-auto z-30 cursor-pointer bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6 py-3 rounded-full shadow-2xl backdrop-blur-md transition-all animate-bounce"
+            />
             {roomError && (
               <div className="absolute inset-x-0 bottom-0 z-20 bg-black/80 text-rose-300 text-[11px] px-3 py-2 text-center">
                 เชื่อมต่อสัญญาณไม่สำเร็จ กำลังลองใหม่... ({roomError})
