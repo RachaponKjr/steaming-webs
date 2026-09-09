@@ -2,11 +2,10 @@ import { Metadata } from "next";
 import LiveViewerEntry from "./_components/LiveViewerEntry";
 import { roomService } from "@/services/room.service";
 
-const defaultTitle =
-  "ไซม่อนซีฟู้ด | ถ่ายทอดสด อาหารทะเลสด-แช่แข็ง คุณภาพพรีเมียม";
+const defaultTitle = "ประมูลลูกไก่ เริ่มต้น10บ. ซุ้ม นักรบหลังกำแพง";
 const defaultDesc =
-  "ชมไลฟ์สดสั่งซื้ออาหารทะเลสด-แช่แข็ง วัตถุดิบชาบู สุกี้ หม่าล่า หมูกระทะ ส่งฟรีทั่วประเทศ เก็บเงินปลายทาง รับประกันทุกกรณี";
-const defaultImage = "/images/saimon.jpg";
+  "ร่วมประมูลลูกไก่สายพันธุ์ดีเริ่มต้นเพียง 10 บาท จากซุ้มนักรบหลังกำแพง อัปเดตราคาล่าสุดและร่วมสนุกประมูลลูกไก่ชนคุณภาพได้ที่นี่";
+const defaultImage = "/images/saimon.png";
 const siteUrl = "https://api.zimonds.com";
 
 // 1. ทำให้ generateMetadata มีความปลอดภัยมากขึ้น ป้องกันหน้าพังถ้า API ล่ม
@@ -29,13 +28,12 @@ export async function generateMetadata(): Promise<Metadata> {
       description,
       keywords: [
         ...tags,
-        "ไซม่อนซีฟู้ด",
-        "ไลฟ์สด",
-        "อาหารทะเลสด",
-        "อาหารทะเลแช่แข็ง",
-        "ชาบู",
-        "หมูกระทะ",
-        "ส่งฟรีทั่วประเทศ",
+        "ประมูลลูกไก่",
+        "ลูกไก่ชน",
+        "ซุ้มนักรบหลังกำแพง",
+        "ประมูลไก่ชน",
+        "ลูกไก่ราคาถูก",
+        "ซุ้มไก่ชน",
       ],
       openGraph: {
         type: "website",
