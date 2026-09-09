@@ -18,7 +18,7 @@ const siteConfig = {
   name: "ประมูลลูกไก่ เริ่มต้น10บ.",
   shortName: "ซุ้ม นักรบหลังกำแพง",
   description: "ประมูลลูกไก่ เริ่มต้น10บ.",
-  url: "https://api.zimonds.com",
+  url: "https://zimonds.com",
   ogImage: "https://zimonds.com/images/saimon.png",
 };
 

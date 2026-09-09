@@ -323,27 +323,32 @@ export default function HomePage({ liveId }: { liveId: string }) {
 
       {/* 2. Main Live Video + TikTok Style Overlay (Mobile) */}
       <div className="relative flex-1 h-full bg-zinc-950 overflow-hidden flex items-center justify-center">
-        <div className="absolute top-20 left-4 flex flex-col justify-center items-center gap-2 ">
+        {/* สำหรับหน้าจอใหญ่ (Desktop / Tablet) - ซ่อนเมื่อเอียงแนวนอน */}
+        <div className="absolute top-20 left-4 flex-col justify-center items-center gap-1.5 hidden xl:flex landscape:hidden">
           <Image
             src="/qrcode.jpg"
             alt="Live Background"
-            width={250}
-            height={250}
-            className="z-20 hidden md:block"
+            width={200}
+            height={200}
+            className="z-20 shadow-md rounded-lg"
           />
-          <span className="z-20 hidden md:block text-[#333333]">
+          <span className="z-20 text-xs text-[#333333] font-medium bg-white/80 px-2 py-0.5 rounded">
             ติดต่อสอบถาม
           </span>
         </div>
-        <div className="flex flex-col justify-center items-center gap-2 absolute top-18 left-3 ">
+
+        {/* สำหรับมือถือ (Mobile) - แสดงเฉพาะแนวตั้ง และขนาดเล็กกะทัดรัด */}
+        <div className="flex flex-col justify-center items-center gap-1 absolute top-16 left-2 md:hidden landscape:hidden">
           <Image
             src="/qrcode.jpg"
             alt="Live Background"
-            width={120}
-            height={120}
-            className="z-20 md:hidden"
+            width={64}
+            height={64}
+            className="z-20 shadow-sm rounded-md"
           />
-          <span className="z-20 md:hidden text-[#333333]">ติดต่อสอบถาม</span>
+          <span className="z-20 text-[10px] text-[#333333] font-medium bg-white/80 px-1.5 py-0.2 rounded">
+            ติดต่อสอบถาม
+          </span>
         </div>
         {/* Header Overlay Bar */}
         <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between pointer-events-none">
