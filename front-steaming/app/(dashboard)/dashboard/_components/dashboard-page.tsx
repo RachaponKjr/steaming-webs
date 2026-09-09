@@ -340,7 +340,7 @@ export default function DashboardPage({ params }: DashboardProps) {
   }
 
   return (
-    <div className="flex-1 space-y-4 sm:space-y-6 p-3 sm:p-6 lg:p-8 max-w-[1600px] mx-auto w-full overflow-x-hidden">
+    <div className="flex-1 space-y-4 sm:space-y-6 p-3 sm:p-6 lg:p-8 mx-auto w-full overflow-x-hidden">
       {/* 1. Header Bar */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
