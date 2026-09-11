@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
+import { Icon } from "@iconify/react";
 
 // ----------------------------------------------------------------------
 // 1. วันนี้ยังไม่มีไลฟ์ถูกเปิดขึ้นมาเลย
@@ -74,28 +75,22 @@ export function NoLiveTodayScreen() {
 
       {/* Contact Channels */}
       <div className="w-full max-w-sm sm:max-w-md grid grid-cols-1 gap-2.5 px-2 sm:px-0">
-        {/* Facebook Fanpage */}
+        {/* Line OA */}
         <Button
           render={
             <Link
-              href="https://web.facebook.com/profile.php?id=61594011634851"
+              href="https://line.me/ti/g2/4O1EGgQX8XVqrdFCeiMBdm7os8m983q0Z7jkyQ?utm_source=invitation&utm_medium=link_copy&utm_campaign=default"
               target="_blank"
               rel="noopener noreferrer"
               className="relative flex items-center justify-center w-full"
             >
-              <svg
-                className="absolute left-4 size-4.5 fill-current"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-              </svg>
-              <span>Facebook Fanpage</span>
+              <Icon icon="cib:line" className="absolute left-4 size-5" />
+              <span>Line OA</span>
               <ExternalLink className="absolute right-4 size-3.5 opacity-70" />
             </Link>
           }
           size={"xl"}
-          className="w-full bg-[#1877F2] hover:bg-[#166fe5] text-white font-medium rounded-md shadow-2xs transition-transform active:scale-[0.98]"
+          className="w-full bg-[#06C755] hover:bg-[#05b34c] text-white font-medium rounded-md shadow-2xs transition-transform active:scale-[0.98]"
         />
 
         {/* Phone Contact */}
@@ -168,28 +163,22 @@ export function WaitingLiveScreen({ title }: { title?: string }) {
 
       {/* Contact Channels */}
       <div className="w-full max-w-sm sm:max-w-md grid grid-cols-1 gap-2.5 px-2 sm:px-0">
-        {/* Facebook */}
+        {/* Line OA */}
         <Button
           render={
             <Link
-              href="https://web.facebook.com/profile.php?id=61594011634851"
+              href="https://line.me/ti/g2/4O1EGgQX8XVqrdFCeiMBdm7os8m983q0Z7jkyQ?utm_source=invitation&utm_medium=link_copy&utm_campaign=default"
               target="_blank"
               rel="noopener noreferrer"
               className="relative flex items-center justify-center w-full"
             >
-              <svg
-                className="absolute left-4 size-4.5 fill-current"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-              </svg>
-              <span>Facebook Fanpage</span>
+              <Icon icon="cib:line" className="absolute left-4 size-5" />
+              <span>Line OA</span>
               <ExternalLink className="absolute right-4 size-3.5 opacity-70" />
             </Link>
           }
           size={"xl"}
-          className="w-full bg-[#1877F2] hover:bg-[#166fe5] text-white font-medium rounded-md shadow-2xs transition-transform active:scale-[0.98]"
+          className="w-full bg-[#06C755] hover:bg-[#05b34c] text-white font-medium rounded-md shadow-2xs transition-transform active:scale-[0.98]"
         />
 
         {/* Phone Contact */}
@@ -253,28 +242,22 @@ export function LiveEndedScreen({ title }: { title?: string }) {
 
       {/* Contact Channels */}
       <div className="w-full max-w-sm sm:max-w-md grid grid-cols-1 gap-2.5 px-2 sm:px-0">
-        {/* Facebook */}
+        {/* Line OA */}
         <Button
           render={
             <Link
-              href="https://web.facebook.com/profile.php?id=61594011634851"
+              href="https://line.me/ti/g2/4O1EGgQX8XVqrdFCeiMBdm7os8m983q0Z7jkyQ?utm_source=invitation&utm_medium=link_copy&utm_campaign=default"
               target="_blank"
               rel="noopener noreferrer"
               className="relative flex items-center justify-center w-full"
             >
-              <svg
-                className="absolute left-4 size-4.5 fill-current"
-                viewBox="0 0 24 24"
-                aria-hidden="true"
-              >
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-              </svg>
-              <span>Facebook Fanpage</span>
+              <Icon icon="cib:line" className="absolute left-4 size-5" />
+              <span>Line OA</span>
               <ExternalLink className="absolute right-4 size-3.5 opacity-70" />
             </Link>
           }
           size={"xl"}
-          className="w-full bg-[#1877F2] hover:bg-[#166fe5] text-white font-medium rounded-md shadow-2xs transition-transform active:scale-[0.98]"
+          className="w-full bg-[#06C755] hover:bg-[#05b34c] text-white font-medium rounded-md shadow-2xs transition-transform active:scale-[0.98]"
         />
 
         {/* Phone Contact */}
