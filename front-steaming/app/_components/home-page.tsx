@@ -43,7 +43,7 @@ import {
   RoomAudioRenderer,
   StartAudio,
 } from "@livekit/components-react";
-import { Track } from "livekit-client";
+import { Track, VideoPresets } from "livekit-client";
 import "@livekit/components-styles";
 import Image from "next/image";
 
@@ -492,6 +492,18 @@ export default function HomePage({ liveId }: { liveId: string }) {
             connect={true}
             video={false}
             audio={true}
+            options={{
+              videoCaptureDefaults: {
+                resolution: VideoPresets.h720.resolution, // หรือ VideoPresets.h1080
+              },
+              publishDefaults: {
+                videoEncoding: {
+                  maxBitrate: 3_000_000,
+                  maxFramerate: 30,
+                },
+                simulcast: true,
+              },
+            }}
             data-lk-theme="default"
             className="w-full h-full"
             onError={(err) => setRoomError(err.message)}

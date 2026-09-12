@@ -56,7 +56,7 @@ import {
   useTracks,
   TrackToggle,
 } from "@livekit/components-react";
-import { Track } from "livekit-client";
+import { Track, VideoPresets } from "livekit-client";
 import "@livekit/components-styles";
 import {
   useLiveSession,
@@ -503,6 +503,18 @@ export default function DashboardPage({ params }: DashboardProps) {
                   connect={true}
                   video={true}
                   audio={true}
+                  options={{
+                    videoCaptureDefaults: {
+                      resolution: VideoPresets.h720.resolution,
+                    },
+                    publishDefaults: {
+                      videoEncoding: {
+                        maxBitrate: 3_000_000,
+                        maxFramerate: 30,
+                      },
+                      simulcast: true,
+                    },
+                  }}
                   className="w-full h-full"
                   onError={(err) => setRoomError(err.message)}
                   onConnected={() => setRoomError("")}
