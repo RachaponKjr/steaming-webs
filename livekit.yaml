@@ -13,11 +13,6 @@ rtc:
   use_external_ip: false
   node_ip: 119.59.102.57
 
-  video:
-    bitrate_sla: 3000000 # บังคับ Target Bitrate เผื่อไว้สูงๆ (ประมาณ 3 Mbps)
-    # หรือกำหนดค่าสูงสุดที่เซิร์ฟเวอร์จะยอมให้ส่งผ่าน
-    max_publish_bitrate: 4000000
-
 room:
   auto_create: true
   empty_timeout: 300
