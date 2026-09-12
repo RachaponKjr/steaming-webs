@@ -505,14 +505,14 @@ export default function DashboardPage({ params }: DashboardProps) {
                   audio={true}
                   options={{
                     videoCaptureDefaults: {
-                      resolution: VideoPresets.h1080.resolution, // หรือ VideoPresets.h1080 (ถ้าสเปคเครื่องไหว)
+                      resolution: VideoPresets.h720.resolution, // ลดลงมาที่ 720p (เสถียรและติดง่ายกว่าเยอะ)
                     },
                     publishDefaults: {
                       videoEncoding: {
-                        maxBitrate: 4_000_000, // ดันไปที่ 4 Mbps เพื่อความคมชัดระดับ HD จริงๆ
-                        maxFramerate: 60,
+                        maxBitrate: 2_500_000, // ลดบิตเรตลงมาที่ 2.5 Mbps
+                        maxFramerate: 30, // ใช้ 30 fps พอ (มาตรฐานไลฟ์สดทั่วไป ไม่กินเครื่อง)
                       },
-                      simulcast: false, // 👈 ปิดตรงนี้! เพื่อบังคับส่งความละเอียดสูงอันเดียวตลอดเวลา ไม่ให้ระบบแอบลดความชัดลง
+                      simulcast: false, // เปิดไว้ให้ระบบช่วยปรับความเสถียรตอนเริ่มเชื่อมต่อ
                     },
                   }}
                   className="w-full h-full"
