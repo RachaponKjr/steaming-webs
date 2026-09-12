@@ -505,14 +505,14 @@ export default function DashboardPage({ params }: DashboardProps) {
                   audio={true}
                   options={{
                     videoCaptureDefaults: {
-                      resolution: VideoPresets.h720.resolution,
+                      resolution: VideoPresets.h1080.resolution, // หรือ VideoPresets.h1080 (ถ้าสเปคเครื่องไหว)
                     },
                     publishDefaults: {
                       videoEncoding: {
-                        maxBitrate: 3_000_000,
-                        maxFramerate: 30,
+                        maxBitrate: 4_000_000, // ดันไปที่ 4 Mbps เพื่อความคมชัดระดับ HD จริงๆ
+                        maxFramerate: 60,
                       },
-                      simulcast: true,
+                      simulcast: false, // 👈 ปิดตรงนี้! เพื่อบังคับส่งความละเอียดสูงอันเดียวตลอดเวลา ไม่ให้ระบบแอบลดความชัดลง
                     },
                   }}
                   className="w-full h-full"
