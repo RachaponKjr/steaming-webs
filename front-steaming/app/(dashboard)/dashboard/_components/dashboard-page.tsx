@@ -2,7 +2,7 @@
 // app/(dashboard)/dashboard/_components/dashboard-page.tsx
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import {
   Card,
   CardContent,
@@ -69,6 +69,7 @@ import { useHostLivekitToken } from "@/hooks/useLivekitToken";
 import { LiveStatus } from "@/services/live-session.service";
 import ImageUpload from "@/components/image-upload";
 import { ShareButton } from "@/components/layout/share-button";
+import { CameraZoomProcessor } from "@/lib/camera-zoom-processor";
 
 interface DashboardProps {
   params?: { liveId?: string };
@@ -80,6 +81,16 @@ interface DashboardProps {
 function HostCameraPreview() {
   const [isMirrored, setIsMirrored] = useState(false);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  const [zoom, setZoom] = useState(1);
+  const previewRef = useRef<HTMLDivElement>(null);
+  const zoomRef = useRef(1);
+  const zoomProcessorRef = useRef<CameraZoomProcessor | null>(null);
+  const applyZoom = useCallback((value: number) => {
+    const nextZoom = Math.min(4, Math.max(1, value));
+    zoomRef.current = nextZoom;
+    zoomProcessorRef.current?.setZoom(nextZoom);
+    setZoom(nextZoom);
+  }, []);
   const { localParticipant } = useLocalParticipant();
   const tracks = useTracks([Track.Source.Camera], {
     onlySubscribed: false,
@@ -88,6 +99,95 @@ function HostCameraPreview() {
   const localCameraTrack = tracks.find(
     (t) => t.participant.identity === localParticipant.identity,
   );
+  const cameraTrack = localParticipant.getTrackPublication(
+    Track.Source.Camera,
+  )?.videoTrack;
+
+  useEffect(() => {
+    if (!cameraTrack) return;
+    const processor = new CameraZoomProcessor();
+    processor.setZoom(zoomRef.current);
+    zoomProcessorRef.current = processor;
+    let disposed = false;
+
+    void cameraTrack
+      .setProcessor(processor)
+      .then(async () => {
+        if (
+          disposed &&
+          !zoomProcessorRef.current &&
+          cameraTrack.getProcessor() === processor
+        ) {
+          await cameraTrack.stopProcessor();
+        }
+      })
+      .catch((error) => {
+        console.error("ไม่สามารถซูมกล้องได้:", error);
+        if (zoomProcessorRef.current === processor) {
+          zoomProcessorRef.current = null;
+        }
+      });
+
+    return () => {
+      disposed = true;
+      if (zoomProcessorRef.current === processor) {
+        zoomProcessorRef.current = null;
+      }
+      if (cameraTrack.getProcessor() === processor) {
+        void cameraTrack.stopProcessor().catch((error) => {
+          console.error("ไม่สามารถหยุดการซูมกล้องได้:", error);
+        });
+      }
+    };
+  }, [cameraTrack]);
+
+  useEffect(() => {
+    const preview = previewRef.current;
+    if (!preview) return;
+    const onWheel = (event: WheelEvent) => {
+      if (!cameraTrack) return;
+      event.preventDefault();
+      applyZoom(zoomRef.current * Math.exp(-event.deltaY * 0.002));
+    };
+    let pinchDistance = 0;
+    let pinchZoom = 1;
+    const distance = (touches: TouchList) =>
+      Math.hypot(
+        touches[0].clientX - touches[1].clientX,
+        touches[0].clientY - touches[1].clientY,
+      );
+    const onTouchStart = (event: TouchEvent) => {
+      if (event.touches.length === 2) {
+        pinchDistance = distance(event.touches);
+        pinchZoom = zoomRef.current;
+      }
+    };
+    const onTouchMove = (event: TouchEvent) => {
+      if (!cameraTrack || event.touches.length !== 2) return;
+      event.preventDefault();
+      if (!pinchDistance) {
+        pinchDistance = distance(event.touches);
+        pinchZoom = zoomRef.current;
+      } else {
+        applyZoom((pinchZoom * distance(event.touches)) / pinchDistance);
+      }
+    };
+    const onTouchEnd = () => {
+      pinchDistance = 0;
+    };
+    preview.addEventListener("wheel", onWheel, { passive: false });
+    preview.addEventListener("touchstart", onTouchStart, { passive: true });
+    preview.addEventListener("touchmove", onTouchMove, { passive: false });
+    preview.addEventListener("touchend", onTouchEnd);
+    preview.addEventListener("touchcancel", onTouchEnd);
+    return () => {
+      preview.removeEventListener("wheel", onWheel);
+      preview.removeEventListener("touchstart", onTouchStart);
+      preview.removeEventListener("touchmove", onTouchMove);
+      preview.removeEventListener("touchend", onTouchEnd);
+      preview.removeEventListener("touchcancel", onTouchEnd);
+    };
+  }, [cameraTrack, applyZoom]);
 
   // ฟังก์ชันสลับกล้องหน้า/หลัง (เปลี่ยน constraints ของ VideoTrack บน LiveKit)
   const handleToggleCameraFacing = async () => {
@@ -116,7 +216,11 @@ function HostCameraPreview() {
   };
 
   return (
-    <div className="relative w-full h-full bg-zinc-950 flex items-center justify-center">
+    <div
+      ref={previewRef}
+      className="relative w-full h-full bg-zinc-950 flex items-center justify-center"
+      style={{ touchAction: "none" }}
+    >
       {localCameraTrack ? (
         <VideoTrack
           trackRef={localCameraTrack}
@@ -130,6 +234,27 @@ function HostCameraPreview() {
           <p className="text-sm font-medium">กำลังเปิดกล้องและไมโครโฟน...</p>
         </div>
       )}
+
+      {/* ระดับซูมกล้อง */}
+      <div className="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-full border border-zinc-700 bg-zinc-900/90 p-1 shadow-lg backdrop-blur">
+        {[1, 1.5, 2].map((level) => (
+          <button
+            key={level}
+            type="button"
+            onClick={() => applyZoom(level)}
+            disabled={!cameraTrack}
+            aria-label={`ซูมกล้อง ${level} เท่า`}
+            aria-pressed={Math.abs(zoom - level) < 0.01}
+            className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
+              Math.abs(zoom - level) < 0.01
+                ? "bg-white text-zinc-950"
+                : "text-white hover:bg-zinc-700"
+            }`}
+          >
+            {level}×
+          </button>
+        ))}
+      </div>
 
       {/* ควบคุมกล้อง */}
       <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2 bg-zinc-900/90 backdrop-blur px-2.5 sm:px-3 py-1.5 rounded-full border border-zinc-700 shadow-lg z-10">
