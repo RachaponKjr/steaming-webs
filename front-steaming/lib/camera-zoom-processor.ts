@@ -5,9 +5,10 @@ import {
 } from "livekit-client";
 
 /** Crops the published camera track so zoom is visible to every viewer. */
-export class CameraZoomProcessor
-  implements TrackProcessor<Track.Kind.Video, VideoProcessorOptions>
-{
+export class CameraZoomProcessor implements TrackProcessor<
+  Track.Kind.Video,
+  VideoProcessorOptions
+> {
   readonly name = "camera-zoom";
   processedTrack?: MediaStreamTrack;
 
@@ -38,11 +39,21 @@ export class CameraZoomProcessor
     this.canvas = canvas;
     this.processedTrack = canvas.captureStream(30).getVideoTracks()[0];
 
+    // ให้แน่ใจว่า element ผูกกับ track ปัจจุบันและกำลังเล่นอยู่
+    if (element.srcObject == null) {
+      element.srcObject = new MediaStream([track]);
+    }
+    element.muted = true;
+    element.playsInline = true;
+    void element.play().catch(() => {});
+
     let wasCameraActive = true;
     const draw = () => {
       const video = this.video;
       const sourceTrack = this.sourceTrack;
-      const cameraActive = sourceTrack?.readyState === "live" && sourceTrack.enabled;
+      const cameraActive =
+        sourceTrack?.readyState === "live" && sourceTrack.enabled;
+
       if (!cameraActive && wasCameraActive) {
         context.fillStyle = "#000";
         context.fillRect(0, 0, canvas.width, canvas.height);
@@ -84,13 +95,15 @@ export class CameraZoomProcessor
     this.frameId = requestAnimationFrame(draw);
   }
 
-  async restart({ track, element }: VideoProcessorOptions) {
-    this.sourceTrack = track;
-    if (element instanceof HTMLVideoElement) this.video = element;
+  // เริ่มใหม่ทั้งหมดแทนการแค่สลับ reference (แก้ภาพค้างหลังเปลี่ยน track)
+  async restart(opts: VideoProcessorOptions) {
+    await this.destroy();
+    await this.init(opts);
   }
 
   async destroy() {
     if (this.frameId !== undefined) cancelAnimationFrame(this.frameId);
+    this.frameId = undefined;
     this.processedTrack?.stop();
     this.processedTrack = undefined;
     this.video = undefined;

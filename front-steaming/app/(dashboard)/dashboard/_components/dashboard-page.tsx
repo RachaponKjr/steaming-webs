@@ -81,6 +81,7 @@ interface DashboardProps {
 function HostCameraPreview() {
   const [isMirrored, setIsMirrored] = useState(false);
   const [facingMode, setFacingMode] = useState<"user" | "environment">("user");
+  const [isSwitching, setIsSwitching] = useState(false);
   const [zoom, setZoom] = useState(1);
   const previewRef = useRef<HTMLDivElement>(null);
   const zoomRef = useRef(1);
@@ -103,37 +104,24 @@ function HostCameraPreview() {
     Track.Source.Camera,
   )?.videoTrack;
 
+  // ติดตั้ง processor ครั้งแรกเมื่อมี camera track
   useEffect(() => {
     if (!cameraTrack) return;
     const processor = new CameraZoomProcessor();
     processor.setZoom(zoomRef.current);
     zoomProcessorRef.current = processor;
-    let disposed = false;
 
-    void cameraTrack
-      .setProcessor(processor)
-      .then(async () => {
-        if (
-          disposed &&
-          !zoomProcessorRef.current &&
-          cameraTrack.getProcessor() === processor
-        ) {
-          await cameraTrack.stopProcessor();
-        }
-      })
-      .catch((error) => {
-        console.error("ไม่สามารถซูมกล้องได้:", error);
-        if (zoomProcessorRef.current === processor) {
-          zoomProcessorRef.current = null;
-        }
-      });
-
-    return () => {
-      disposed = true;
+    void cameraTrack.setProcessor(processor).catch((error) => {
+      console.error("ไม่สามารถซูมกล้องได้:", error);
       if (zoomProcessorRef.current === processor) {
         zoomProcessorRef.current = null;
       }
-      if (cameraTrack.getProcessor() === processor) {
+    });
+
+    return () => {
+      // หยุดตัวที่ติดอยู่ตอนนี้ (อาจไม่ใช่ตัวเดิม เพราะถูกสลับตอนเปลี่ยนกล้อง)
+      zoomProcessorRef.current = null;
+      if (cameraTrack.getProcessor()) {
         void cameraTrack.stopProcessor().catch((error) => {
           console.error("ไม่สามารถหยุดการซูมกล้องได้:", error);
         });
@@ -189,29 +177,40 @@ function HostCameraPreview() {
     };
   }, [cameraTrack, applyZoom]);
 
-  // ฟังก์ชันสลับกล้องหน้า/หลัง (เปลี่ยน constraints ของ VideoTrack บน LiveKit)
+  // สลับกล้องหน้า/หลัง: ถอด processor -> restart กล้อง -> ใส่ processor ใหม่
   const handleToggleCameraFacing = async () => {
+    if (isSwitching) return;
+    const track = localParticipant.getTrackPublication(
+      Track.Source.Camera,
+    )?.videoTrack;
+    if (!track) return;
+
     const nextMode = facingMode === "user" ? "environment" : "user";
-    setFacingMode(nextMode);
-    // สลับโหมดกระจกอัตโนมัติหากใช้กล้องหลัง (กล้องหลังปกติไม่ควรกลับด้าน)
-    if (nextMode === "environment") {
-      setIsMirrored(false);
-    }
+    setIsSwitching(true);
 
     try {
-      if (localParticipant) {
-        const cameraPub = localParticipant.getTrackPublication(
-          Track.Source.Camera,
-        );
-        if (cameraPub && cameraPub.videoTrack) {
-          // รีสตาร์ทแทร็กกล้องด้วย facingMode ใหม่
-          await cameraPub.videoTrack.restartTrack({
-            facingMode: nextMode,
-          });
-        }
+      // 1) ถอด processor ออกก่อน
+      zoomProcessorRef.current = null;
+      if (track.getProcessor()) {
+        await track.stopProcessor();
       }
+
+      // 2) สลับกล้องจริง
+      await track.restartTrack({ facingMode: nextMode });
+
+      // 3) ใส่ processor ตัวใหม่กลับเข้าไป (คงระดับซูมเดิม)
+      const processor = new CameraZoomProcessor();
+      processor.setZoom(zoomRef.current);
+      await track.setProcessor(processor);
+      zoomProcessorRef.current = processor;
+
+      setFacingMode(nextMode);
+      // กล้องหลังไม่ควรกลับด้าน
+      if (nextMode === "environment") setIsMirrored(false);
     } catch (err) {
       console.error("ไม่สามารถสลับกล้องได้:", err);
+    } finally {
+      setIsSwitching(false);
     }
   };
 
@@ -235,6 +234,12 @@ function HostCameraPreview() {
         </div>
       )}
 
+      {isSwitching && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/40">
+          <Loader2 className="size-8 animate-spin text-white" />
+        </div>
+      )}
+
       {/* ระดับซูมกล้อง */}
       <div className="absolute right-3 top-3 z-10 flex items-center gap-1 rounded-full border border-zinc-700 bg-zinc-900/90 p-1 shadow-lg backdrop-blur">
         {[1, 1.5, 2].map((level) => (
@@ -242,7 +247,7 @@ function HostCameraPreview() {
             key={level}
             type="button"
             onClick={() => applyZoom(level)}
-            disabled={!cameraTrack}
+            disabled={!cameraTrack || isSwitching}
             aria-label={`ซูมกล้อง ${level} เท่า`}
             aria-pressed={Math.abs(zoom - level) < 0.01}
             className={`rounded-full px-2.5 py-1 text-xs font-medium transition-colors disabled:opacity-50 ${
@@ -269,8 +274,9 @@ function HostCameraPreview() {
         <button
           type="button"
           onClick={handleToggleCameraFacing}
+          disabled={isSwitching}
           title="สลับกล้องหน้า / หลัง"
-          className="flex items-center gap-1 text-xs text-white px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full hover:bg-zinc-800 border border-zinc-700 transition-colors"
+          className="flex items-center gap-1 text-xs text-white px-2 py-1 sm:px-2.5 sm:py-1.5 rounded-full hover:bg-zinc-800 border border-zinc-700 transition-colors disabled:opacity-50"
         >
           <SwitchCamera className="size-3.5" />
           <span className="hidden sm:inline">
